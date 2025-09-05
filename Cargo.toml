@@ -1,8 +1,20 @@
 [package]
-name = "tantivy_demo"
+name = "tantivy-lancedb-hybrid-search"
 version = "0.1.0"
 edition = "2021"
-default-run = "tantivy_demo"
+authors = ["Your Name <your.email@example.com>"]
+description = "A production-ready hybrid search system combining Tantivy (text search) with LanceDB (vector search)"
+license = "MIT"
+repository = "https://github.com/yourusername/tantivy-lancedb-hybrid-search"
+homepage = "https://github.com/yourusername/tantivy-lancedb-hybrid-search"
+documentation = "https://docs.rs/tantivy-lancedb-hybrid-search"
+keywords = ["search", "tantivy", "lancedb", "vector-search", "text-search", "hybrid-search"]
+categories = ["search", "text-processing", "data-structures"]
+default-run = "lancedb_production_example"
+
+[lib]
+name = "tantivy_demo"
+path = "src/lib.rs"
 
 [[bin]]
 name = "search_tests"
@@ -15,6 +27,11 @@ path = "src/facet_mapping.rs"
 [[bin]]
 name = "lancedb_demo"
 path = "src/lancedb_demo.rs"
+
+[[bin]]
+name = "lancedb_production_example"
+path = "src/lancedb_production_example.rs"
+
 
 [dependencies]
 tantivy = "0.24"

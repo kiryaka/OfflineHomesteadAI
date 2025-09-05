@@ -1,10 +1,9 @@
-use std::path::Path;
 use walkdir::WalkDir;
 use twox_hash::XxHash64;
 use std::hash::{Hasher, Hash};
 
-mod config;
-use config::Config;
+// Include the config module directly for this binary
+include!("config.rs");
 
 /// Generate a deterministic facet category based on filename hash
 /// Uses categories from configuration

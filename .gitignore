@@ -7,8 +7,7 @@ data/tantivy_index/
 *.idx
 
 # Data directories and files
-data/raw/
-data/lancedb_index/
+data/
 /TXT/
 *.txt
 *.zip
