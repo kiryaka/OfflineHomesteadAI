@@ -1,14 +1,15 @@
-# OfflineHomesteadAI Configuration
+# Production Configuration
+# Optimized for 100GB corpus with maximum performance
 
 [data]
 # Data directory structure
-raw_txt_dir = "dev_data"
-tantivy_index_dir = "dev_data/tantivy_index"
-lancedb_index_dir = "dev_data/lancedb_index"
+raw_txt_dir = "../data/raw"
+tantivy_index_dir = "../data/indexes/tantivy"
+lancedb_index_dir = "../data/indexes/lancedb"
 
 [search]
-# Search configuration
-default_limit = 5
+# Search configuration - production limits
+default_limit = 10
 max_limit = 100
 fuzzy_max_distance = 4
 
@@ -17,30 +18,34 @@ fuzzy_max_distance = 4
 categories = ["tech/math", "tech/it", "lit/fiction", "lit/romcom"]
 
 [embedding]
-# Embedding configuration
-# Common dimensions: 384 (MiniLM), 512 (Sentence-BERT), 768 (CodeBERT), 1024 (BGE-M3), 1536 (OpenAI)
+# Embedding configuration - production settings
 dimension = 1536  # OpenAI text-embedding-3-small - best for general technical knowledge
 model = "text-embedding-3-small"  # OpenAI model - excellent for broad technical content
-# Alternative options:
-# dimension = 1024; model = "BAAI/bge-m3"           # BGE-M3 (specialized technical)
-# dimension = 1024; model = "intfloat/e5-large-v2"  # E5 (search optimized)
-# dimension = 768; model = "microsoft/codebert-base" # CodeBERT (code focused)
 
 [lancedb]
-# LanceDB vector index configuration for 100GB corpus
-# IVF_PQ parameters optimized for production scale
+# LanceDB vector index configuration - PRODUCTION OPTIMIZED
+# Optimized for 100GB corpus (~25M vectors)
 num_partitions = 6144      # ~1,000-4,000 vectors per partition for 10-50M vectors
 num_sub_vectors = 96       # 1536/96=16 sub-vectors (SIMD optimized for OpenAI)
 metric = "cosine"          # Cosine similarity for text embeddings
 
 [lancedb_search]
-# Search parameters for PQ over-retrieval + flat re-ranking strategy
+# Search parameters - PRODUCTION OPTIMIZED
+# Optimized for high recall and accuracy
 nprobes = 300              # 5% of partitions for good recall
 refine_factor = 40         # 40x over-retrieval for comprehensive re-ranking
 default_limit = 10         # Final results after re-ranking
 max_limit = 100            # Maximum results allowed
 
 [server]
-# Server configuration (for future API)
-host = "127.0.0.1"
+# Server configuration - production settings
+host = "0.0.0.0"  # Listen on all interfaces
 port = 8080
+
+[prod]
+# Production-specific settings
+enable_debug_logging = false
+fast_indexing = false
+skip_expensive_operations = false
+monitoring_enabled = true
+performance_profiling = true

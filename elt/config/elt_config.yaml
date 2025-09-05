@@ -1,0 +1,22 @@
+# ELT Pipeline Configuration
+
+extraction:
+  pdf:
+    strategy: "auto"  # auto, fast, hi_res, ocr_only
+    ocr_languages: ["eng"]
+  image:
+    ocr_languages: ["eng"]
+  supported_formats: ["pdf", "docx", "jpg", "jpeg", "png", "tiff"]
+
+chunking:
+  chunk_size: 1000
+  chunk_overlap: 200
+  separators: ["\n\n", "\n", " ", ""]
+
+embedding:
+  model: "text-embedding-3-small"
+  batch_size: 32
+
+output:
+  tantivy_format: "json"
+  lancedb_format: "json"
