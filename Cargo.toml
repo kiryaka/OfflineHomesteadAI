@@ -24,3 +24,5 @@ rand_chacha = "0.3"
 bytemuck = "1.16"
 twox-hash = "1.6"
 anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"

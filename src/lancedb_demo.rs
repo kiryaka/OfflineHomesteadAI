@@ -3,19 +3,18 @@ use walkdir::WalkDir;
 use twox_hash::XxHash64;
 use std::hash::{Hasher, Hash};
 
+mod config;
+use config::Config;
+
 /// Generate a deterministic facet category based on filename hash
-/// 2-level tree: tech/math, tech/it, lit/fiction, lit/romcom
-fn deterministic_facet(filename: &str) -> &'static str {
+/// Uses categories from configuration
+fn deterministic_facet<'a>(filename: &str, categories: &'a [String]) -> &'a str {
     let mut hasher = XxHash64::with_seed(0);
     filename.hash(&mut hasher);
     let hash = hasher.finish();
     
-    match hash % 4 {
-        0 => "tech/math",
-        1 => "tech/it", 
-        2 => "lit/fiction",
-        _ => "lit/romcom",
-    }
+    let index = (hash as usize) % categories.len();
+    &categories[index]
 }
 
 /// Generate a simple embedding vector based on filename hash
@@ -40,14 +39,20 @@ fn generate_embedding(filename: &str, content: &str) -> Vec<f32> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let data_dir = Path::new("./data");
+    // Load configuration
+    let config = Config::load().unwrap_or_else(|_| {
+        println!("Warning: Could not load config.toml, using defaults");
+        Config::default()
+    });
+
+    let data_dir = config.get_raw_txt_dir();
     
     println!("🚀 LanceDB + Tantivy Hybrid Search Demo");
     println!("=======================================");
     println!();
     
     let mut files = Vec::new();
-    for entry in WalkDir::new(data_dir).into_iter().filter_map(Result::ok) {
+    for entry in WalkDir::new(&data_dir).into_iter().filter_map(Result::ok) {
         let path = entry.path();
         if path.is_file() && path.extension().map(|ext| ext == "txt").unwrap_or(false) {
             files.push(path.to_path_buf());
@@ -64,8 +69,8 @@ fn main() -> anyhow::Result<()> {
         let filename = file_path.file_name()
             .unwrap()
             .to_string_lossy();
-        let facet = deterministic_facet(&filename);
-        *facet_counts.entry(facet).or_insert(0) += 1;
+        let facet = deterministic_facet(&filename, config.get_facet_categories());
+        *facet_counts.entry(facet.to_string()).or_insert(0) += 1;
         
         // Read content (simplified)
         let content = std::fs::read_to_string(file_path)

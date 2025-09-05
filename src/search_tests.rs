@@ -5,6 +5,9 @@ use tantivy::schema::*;
 use tantivy::snippet::SnippetGenerator;
 use tantivy::{Index, Term};
 
+mod config;
+use config::Config;
+
 /// Create a hybrid fuzzy query: exact match + fuzzy match with scoring
 fn create_fuzzy_query(query_string: &str, text_field: Field) -> anyhow::Result<Box<dyn tantivy::query::Query>> {
     // Split query into words
@@ -167,24 +170,30 @@ fn search_with_facets(index: &Index, query_string: &str, facets: Option<Vec<&str
 }
 
 fn main() -> anyhow::Result<()> {
+    // Load configuration
+    let config = Config::load().unwrap_or_else(|_| {
+        println!("Warning: Could not load config.toml, using defaults");
+        Config::default()
+    });
+
     let args: Vec<String> = env::args().collect();
     
-    if args.len() < 3 {
-        eprintln!("Usage: {} <index_dir> -q <query> [-f <facet1> <facet2> ...] [-n <number>] [--fuzzy]", args[0]);
+    if args.len() < 2 {
+        eprintln!("Usage: {} [-q <query>] [-f <facet1> <facet2> ...] [-n <number>] [--fuzzy]", args[0]);
         eprintln!("Examples:");
-        eprintln!("  {} ./tantivy_index -q 'love OR war'", args[0]);
-        eprintln!("  {} ./tantivy_index -q 'coffee' -f tech lit", args[0]);
-        eprintln!("  {} ./tantivy_index -q 'classics' -f tech/math -n 10", args[0]);
-        eprintln!("  {} ./tantivy_index -q 'coffe' --fuzzy", args[0]);
+        eprintln!("  {} -q 'love OR war'", args[0]);
+        eprintln!("  {} -q 'coffee' -f tech lit", args[0]);
+        eprintln!("  {} -q 'classics' -f tech/math -n 10", args[0]);
+        eprintln!("  {} -q 'coffe' --fuzzy", args[0]);
         std::process::exit(1);
     }
     
-    let index_dir = &args[1];
+    let index_dir = config.get_tantivy_index_dir();
     let mut query_string = String::new();
     let mut facets: Option<Vec<&str>> = None;
     let mut limit = 5; // default limit
     let mut fuzzy = false;
-    let mut i = 2;
+    let mut i = 1;
     
     // Parse command line arguments
     while i < args.len() {
@@ -236,7 +245,7 @@ fn main() -> anyhow::Result<()> {
     }
     
     // Open the index
-    let index = Index::open_in_dir(index_dir)?;
+    let index = Index::open_in_dir(&index_dir)?;
     
     // Run search
     search_with_facets(&index, &query_string, facets, limit, fuzzy)?;

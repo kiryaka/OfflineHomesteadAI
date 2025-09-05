@@ -3,11 +3,12 @@
 Cargo.lock
 
 # Tantivy indexes
-/tantivy_index/
+data/tantivy_index/
 *.idx
 
 # Data directories and files
-/data/
+data/raw/
+data/lancedb_index/
 /TXT/
 *.txt
 *.zip

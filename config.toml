@@ -1,0 +1,27 @@
+# OfflineHomesteadAI Configuration
+
+[data]
+# Data directory structure
+raw_txt_dir = "data/raw/txt"
+tantivy_index_dir = "data/tantivy_index"
+lancedb_index_dir = "data/lancedb_index"
+
+[search]
+# Search configuration
+default_limit = 5
+max_limit = 100
+fuzzy_max_distance = 4
+
+[facets]
+# Facet configuration
+categories = ["tech/math", "tech/it", "lit/fiction", "lit/romcom"]
+
+[embedding]
+# Embedding configuration
+dimension = 128
+model = "placeholder"  # Will be replaced with actual model
+
+[server]
+# Server configuration (for future API)
+host = "127.0.0.1"
+port = 8080

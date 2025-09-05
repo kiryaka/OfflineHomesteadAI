@@ -8,6 +8,9 @@ use tantivy::schema::*;
 use tantivy::snippet::SnippetGenerator;
 use tantivy::{Index, Term};
 
+mod config;
+use config::Config;
+
 // VECTOR_DIM removed - no vector search needed
 
 /// Build the search schema with all required fields
@@ -50,26 +53,22 @@ fn list_txt_files(root: &Path) -> Vec<PathBuf> {
 // seed_from_path function removed - using deterministic facet allocation
 
 /// Generate a deterministic facet category based on filename hash
-/// 2-level tree: tech/math, tech/it, lit/fiction, lit/romcom
-fn deterministic_facet(filename: &str) -> Facet {
+/// Uses categories from configuration
+fn deterministic_facet(filename: &str, categories: &[String]) -> Facet {
     use std::hash::{Hasher, Hash};
     let mut hasher = twox_hash::XxHash64::with_seed(0);
     filename.hash(&mut hasher);
     let hash = hasher.finish();
     
-    // Use modulo 4 to get consistent facet assignment
-    match hash % 4 {
-        0 => Facet::from("/tech/math"),
-        1 => Facet::from("/tech/it"),
-        2 => Facet::from("/lit/fiction"),
-        _ => Facet::from("/lit/romcom"),
-    }
+    // Use modulo to get consistent facet assignment
+    let index = (hash as usize) % categories.len();
+    Facet::from(&format!("/{}", categories[index]))
 }
 
 // generate_vector function removed - no vector search needed
 
 /// Index all text files from the data directory
-fn index_files(index: &Index, data_dir: &Path) -> anyhow::Result<()> {
+fn index_files(index: &Index, data_dir: &Path, config: &Config) -> anyhow::Result<()> {
     let schema = index.schema();
     let id_field = schema.get_field("id")?;
     let doc_id_field = schema.get_field("doc_id")?;
@@ -108,7 +107,7 @@ fn index_files(index: &Index, data_dir: &Path) -> anyhow::Result<()> {
         let filename = file_path.file_name()
             .unwrap()
             .to_string_lossy();
-        let category = deterministic_facet(&filename);
+        let category = deterministic_facet(&filename, config.get_facet_categories());
 
         // Create document with the specified schema
         let doc_id_str = if !doc_id.is_empty() {
@@ -231,9 +230,17 @@ fn run_search_query(
 }
 
 fn main() -> anyhow::Result<()> {
+    // Load configuration
+    let config = Config::load().unwrap_or_else(|_| {
+        println!("Warning: Could not load config.toml, using defaults");
+        Config::default()
+    });
+
     // Parse command line arguments
     let args: Vec<String> = env::args().skip(1).collect();
-    let data_dir = PathBuf::from(args.get(0).cloned().unwrap_or_else(|| "./data".to_string()));
+    let data_dir = args.get(0)
+        .map(|s| PathBuf::from(s))
+        .unwrap_or_else(|| config.get_raw_txt_dir());
     let query_string = args.get(1).cloned().unwrap_or_else(|| r#"old OR coffee OR "ε>0""#.to_string());
     let facet_prefix = args.get(2).map(|s| s.as_str());
 
@@ -245,7 +252,7 @@ fn main() -> anyhow::Result<()> {
 
     // Create index
     let schema = build_schema();
-    let index_dir = PathBuf::from("./tantivy_index");
+    let index_dir = config.get_tantivy_index_dir();
     
     // Clean up existing index
     if index_dir.exists() {
@@ -260,7 +267,7 @@ fn main() -> anyhow::Result<()> {
     println!("Created index at: {}", index_dir.display());
 
     // Index all text files
-    index_files(&index, &data_dir)?;
+    index_files(&index, &data_dir, &config)?;
 
     // Run the main query
     run_search_query(&index, &query_string, facet_prefix, 10)?;
