@@ -3,9 +3,9 @@
 
 [data]
 # Data directory structure
-raw_txt_dir = "data/raw/txt"
-tantivy_index_dir = "data/tantivy_index_dev"
-lancedb_index_dir = "data/lancedb_index_dev"
+raw_txt_dir = "dev_data"
+tantivy_index_dir = "dev_data/tantivy_index"
+lancedb_index_dir = "dev_data/lancedb_index"
 
 [search]
 # Search configuration - smaller limits for dev
