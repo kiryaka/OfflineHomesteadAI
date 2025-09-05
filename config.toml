@@ -18,8 +18,9 @@ categories = ["tech/math", "tech/it", "lit/fiction", "lit/romcom"]
 
 [embedding]
 # Embedding configuration
-dimension = 128
-model = "placeholder"  # Will be replaced with actual model
+# Common dimensions: 384 (MiniLM), 512 (Sentence-BERT), 1536 (OpenAI), 3072 (OpenAI-large)
+dimension = 1536  # OpenAI text-embedding-3-small standard
+model = "text-embedding-3-small"  # OpenAI model name
 
 [server]
 # Server configuration (for future API)

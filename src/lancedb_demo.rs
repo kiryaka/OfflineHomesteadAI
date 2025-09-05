@@ -19,18 +19,18 @@ fn deterministic_facet<'a>(filename: &str, categories: &'a [String]) -> &'a str 
 
 /// Generate a simple embedding vector based on filename hash
 /// This is a placeholder - in real implementation, you'd use actual embeddings
-fn generate_embedding(filename: &str, content: &str) -> Vec<f32> {
+fn generate_embedding(filename: &str, content: &str, dimension: usize) -> Vec<f32> {
     let mut hasher = XxHash64::with_seed(0);
     filename.hash(&mut hasher);
     content.hash(&mut hasher);
     let hash = hasher.finish();
     
-    // Generate deterministic 128-dimensional vector
+    // Generate deterministic vector of specified dimension
     let mut rng = std::collections::hash_map::DefaultHasher::new();
     rng.write_u64(hash);
-    let mut vector = vec![0f32; 128];
+    let mut vector = vec![0f32; dimension];
     
-    for i in 0..128 {
+    for i in 0..dimension {
         rng.write_u64(hash.wrapping_add(i as u64));
         vector[i] = (rng.finish() % 1000) as f32 / 1000.0;
     }
@@ -77,7 +77,7 @@ fn main() -> anyhow::Result<()> {
             .unwrap_or_else(|_| "Content unavailable".to_string());
         
         // Generate embedding
-        let embedding = generate_embedding(&filename, &content);
+        let embedding = generate_embedding(&filename, &content, config.embedding.dimension);
         
         println!("📄 {:<30} | {} | embedding: [{:.3}, {:.3}, ...]", 
                 filename, facet, embedding[0], embedding[1]);

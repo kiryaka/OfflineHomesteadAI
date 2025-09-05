@@ -87,8 +87,8 @@ impl Default for Config {
                 ],
             },
             embedding: EmbeddingConfig {
-                dimension: 128,
-                model: "placeholder".to_string(),
+                dimension: 1536,
+                model: "text-embedding-3-small".to_string(),
             },
             server: ServerConfig {
                 host: "127.0.0.1".to_string(),
