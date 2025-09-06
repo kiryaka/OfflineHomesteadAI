@@ -11,42 +11,44 @@ homepage = "https://github.com/yourusername/tantivy-lancedb-hybrid-search"
 documentation = "https://docs.rs/tantivy-lancedb-hybrid-search"
 keywords = ["search", "tantivy", "lancedb", "vector-search", "text-search", "hybrid-search"]
 categories = ["search", "text-processing", "data-structures"]
-default-run = "lancedb_production_example"
 
 [lib]
 name = "tantivy_demo"
 path = "src/lib.rs"
 
 [[bin]]
-name = "search_tests"
-path = "src/search_tests.rs"
+name = "tantivy-lancedb-hybrid-search"
+path = "src/main.rs"
 
 [[bin]]
-name = "facet_mapping"
-path = "src/facet_mapping.rs"
+name = "search_only"
+path = "src/search_only.rs"
 
 [[bin]]
-name = "lancedb_demo"
-path = "src/lancedb_demo.rs"
+name = "tantivy_search"
+path = "src/tantivy_search.rs"
 
 [[bin]]
-name = "lancedb_production_example"
-path = "src/lancedb_production_example.rs"
-
+name = "lance_search"
+path = "src/lance_search.rs"
 
 [dependencies]
 tantivy = "0.24"
 walkdir = "2.5"
-rand = "0.8"
-rand_chacha = "0.3"
-bytemuck = "1.16"
-twox-hash = "1.6"
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.8"
 figment = { version = "0.10", features = ["env", "toml"] }
 serde_json = "1.0"
-
-[[bin]]
-name = "interactive_search"
-path = "src/interactive_search.rs"
+lancedb = "0.22"
+arrow-array = "55.0"
+arrow-schema = "55.0"
+futures = "0.3"
+tokio = { version = "1.0", features = ["full"] }
+rand = "0.8"
+twox-hash = "1.6"
+tempfile = "3.0"
+tokenizers = "0.15"
+candle-core = { version = "0.9", features = ["metal"] }
+candle-nn = { version = "0.9", features = ["metal"] }
+candle-transformers = { version = "0.9", features = ["metal"] }
+indicatif = "0.17"

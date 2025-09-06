@@ -7,4 +7,8 @@
 #![deny(unused_imports)]
 
 pub mod config;
-pub mod facet_mapping;
+pub mod data_processor;
+pub mod embedding;
+pub mod lancedb_indexer;
+pub mod tantivy_utils;
+pub mod lance_utils;
