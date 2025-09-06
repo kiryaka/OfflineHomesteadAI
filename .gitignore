@@ -59,6 +59,9 @@ Thumbs.db
 /lance_demo_db/
 *.lance
 
+# ML Models (large files)
+models/
+
 # Python artifacts
 __pycache__/
 *.pyc

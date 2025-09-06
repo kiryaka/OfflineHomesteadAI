@@ -1,0 +1,34 @@
+# Development environment configuration
+environment: dev
+
+# Data paths (relative to project root)
+data:
+  raw_dir: "../dev_data/raw"
+  txt_dir: "../dev_data/txt"
+  
+# PDF processing settings
+pdf:
+  # Text extraction method: "pymupdf", "pdfplumber", "pypdf2"
+  extractor: "pymupdf"
+  # Minimum text length to keep
+  min_text_length: 50
+  # Maximum line length before splitting
+  max_line_length: 1000
+
+# Text cleaning settings
+text_cleaning:
+  # Remove empty lines
+  remove_empty_lines: true
+  # Remove lines with only whitespace
+  remove_whitespace_only: true
+  # Remove very short lines (less than N characters)
+  min_line_length: 10
+  # Preserve paragraph breaks
+  preserve_paragraphs: true
+  # Normalize whitespace
+  normalize_whitespace: true
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

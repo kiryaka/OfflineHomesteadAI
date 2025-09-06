@@ -7,7 +7,6 @@ prepperKnowledge:
     - pestControl
     - harvesting
     - seedSaving
-    - misc
   - livestock:
     - poultry
     - goatSheep
@@ -15,7 +14,6 @@ prepperKnowledge:
     - rabbit
     - bee
     - pig
-    - misc
   - forage:
     - ediblePlant
     - mushroom
@@ -23,7 +21,6 @@ prepperKnowledge:
     - berry
     - seaweed
     - insect
-    - misc
   - hunting:
     - smallGame
     - bigGame
@@ -31,7 +28,6 @@ prepperKnowledge:
     - bow
     - firearm
     - ammunitionReloading
-    - misc
   - fishing:
     - rodLine
     - netTrap
@@ -39,7 +35,6 @@ prepperKnowledge:
     - iceFishing
     - boat
     - preservation
-    - misc
   - preservation:
     - canning
     - pickling
@@ -47,7 +42,6 @@ prepperKnowledge:
     - drying
     - fermenting
     - salting
-    - misc
   - cooking:
     - fireCooking
     - solarCooking
@@ -55,7 +49,6 @@ prepperKnowledge:
     - stove
     - castIron
     - recipe
-    - misc
 - water:
   - source:
     - well
@@ -64,7 +57,6 @@ prepperKnowledge:
     - lake
     - rain
     - iceSnow
-    - misc
   - collection:
     - roofCatchment
     - gutter
@@ -72,7 +64,6 @@ prepperKnowledge:
     - fogNet
     - condensation
     - manualCarry
-    - misc
   - storage:
     - barrel
     - cistern
@@ -80,7 +71,6 @@ prepperKnowledge:
     - clayJar
     - undergroundReservoir
     - bladder
-    - misc
   - purification:
     - boiling
     - filtration
@@ -88,7 +78,6 @@ prepperKnowledge:
     - uv
     - distillation
     - ceramicFilter
-    - misc
   - distribution:
     - bucket
     - gravityPipe
@@ -96,7 +85,6 @@ prepperKnowledge:
     - valve
     - irrigationLine
     - aqueduct
-    - misc
   - irrigation:
     - furrow
     - drip
@@ -104,7 +92,6 @@ prepperKnowledge:
     - flood
     - hydroponic
     - swale
-    - misc
   - wastewater:
     - greywater
     - blackwater
@@ -112,7 +99,6 @@ prepperKnowledge:
     - reedBed
     - septicSystem
     - biogasDigester
-    - misc
 - shelterConstruction:
   - buildingBasic:
     - woodJoinery
@@ -121,7 +107,6 @@ prepperKnowledge:
     - roofing
     - foundation
     - insulation
-    - misc
   - housing:
     - cabin
     - tinyHouse
@@ -129,7 +114,6 @@ prepperKnowledge:
     - yurt
     - tent
     - mobileHome
-    - misc
   - outbuilding:
     - barn
     - coop
@@ -137,7 +121,6 @@ prepperKnowledge:
     - workshop
     - rootCellar
     - greenhouse
-    - misc
   - fencing:
     - woodFence
     - wireFence
@@ -145,7 +128,6 @@ prepperKnowledge:
     - electricFence
     - hedgeRow
     - gate
-    - misc
   - largeWork:
     - bridge
     - dam
@@ -153,7 +135,6 @@ prepperKnowledge:
     - canal
     - defensiveWall
     - tower
-    - misc
   - fireSafety:
     - chimney
     - stove
@@ -161,7 +142,6 @@ prepperKnowledge:
     - extinguisher
     - alarm
     - lightningProtection
-    - misc
   - maintenance:
     - carpentryRepair
     - masonryRepair
@@ -169,7 +149,6 @@ prepperKnowledge:
     - plumbingRepair
     - painting
     - salvage
-    - misc
 - powerFuel:
   - firecraft:
     - friction
@@ -178,7 +157,6 @@ prepperKnowledge:
     - firestarter
     - charcoal
     - campfire
-    - misc
   - solar:
     - panel
     - chargeController
@@ -186,7 +164,6 @@ prepperKnowledge:
     - waterHeating
     - passiveHeating
     - batteryBank
-    - misc
   - hydro:
     - waterWheel
     - microHydro
@@ -194,7 +171,6 @@ prepperKnowledge:
     - dam
     - penstock
     - conversion
-    - misc
   - wind:
     - windmill
     - turbine
@@ -202,7 +178,6 @@ prepperKnowledge:
     - pump
     - generator
     - repair
-    - misc
   - fuel:
     - firewood
     - charcoal
@@ -210,7 +185,6 @@ prepperKnowledge:
     - alcohol
     - oil
     - coal
-    - misc
   - storage:
     - battery
     - fuelTank
@@ -218,7 +192,6 @@ prepperKnowledge:
     - containment
     - rotation
     - monitoring
-    - misc
   - distribution:
     - wiring
     - inverter
@@ -226,7 +199,6 @@ prepperKnowledge:
     - switchgear
     - safety
     - gridDesign
-    - misc
 - healthMedicine:
   - firstAid:
     - bleeding
@@ -235,7 +207,6 @@ prepperKnowledge:
     - shock
     - cpr
     - bandaging
-    - misc
   - diseaseControl:
     - sanitation
     - preventiveMedicine
@@ -243,7 +214,6 @@ prepperKnowledge:
     - quarantine
     - vaccine
     - vectorControl
-    - misc
   - herbalRemedy:
     - tea
     - tincture
@@ -251,7 +221,6 @@ prepperKnowledge:
     - salve
     - essentialOil
     - wildPharmacy
-    - misc
   - nutrition:
     - macronutrient
     - vitamin
@@ -259,7 +228,6 @@ prepperKnowledge:
     - balancedDiet
     - deficiency
     - ration
-    - misc
   - childElderCare:
     - birth
     - pediatric
@@ -267,7 +235,6 @@ prepperKnowledge:
     - chronicIllness
     - mobility
     - palliativeCare
-    - misc
   - mentalHealth:
     - stress
     - trauma
@@ -275,7 +242,6 @@ prepperKnowledge:
     - groupDynamic
     - isolation
     - copingSkill
-    - misc
   - veterinary:
     - poultry
     - goatSheep
@@ -283,7 +249,6 @@ prepperKnowledge:
     - pig
     - rabbit
     - bee
-    - misc
 - defenseSecurity:
   - perimeter:
     - fence
@@ -292,7 +257,6 @@ prepperKnowledge:
     - motionDetector
     - tripwire
     - patrol
-    - misc
   - weapon:
     - firearm
     - bow
@@ -300,7 +264,6 @@ prepperKnowledge:
     - knife
     - sling
     - crossbow
-    - misc
   - ammunition:
     - reloading
     - casting
@@ -308,7 +271,6 @@ prepperKnowledge:
     - arrow
     - storage
     - maintenance
-    - misc
   - trap:
     - deadfall
     - snare
@@ -316,7 +278,6 @@ prepperKnowledge:
     - spikeTrap
     - net
     - boobyTrap
-    - misc
   - tactic:
     - scouting
     - camouflage
@@ -324,7 +285,6 @@ prepperKnowledge:
     - ambush
     - retreat
     - groupTactic
-    - misc
   - fortification:
     - wall
     - trench
@@ -332,7 +292,6 @@ prepperKnowledge:
     - safeRoom
     - reinforcement
     - earthwork
-    - misc
   - training:
     - fitness
     - drill
@@ -340,7 +299,6 @@ prepperKnowledge:
     - martialArt
     - weaponHandling
     - teamwork
-    - misc
 - transportation:
   - landVehicle:
     - bicycle
@@ -349,7 +307,6 @@ prepperKnowledge:
     - truck
     - motorcycle
     - atv
-    - misc
   - watercraft:
     - canoe
     - rowboat
@@ -357,7 +314,6 @@ prepperKnowledge:
     - kayak
     - ferry
     - raft
-    - misc
   - aircraft:
     - drone
     - ultralight
@@ -365,7 +321,6 @@ prepperKnowledge:
     - balloon
     - helicopter
     - airplane
-    - misc
   - animalDraft:
     - horse
     - ox
@@ -373,7 +328,6 @@ prepperKnowledge:
     - dog
     - camel
     - elephant
-    - misc
   - repairMaintenance:
     - engine
     - hydraulic
@@ -381,7 +335,6 @@ prepperKnowledge:
     - tireTrack
     - lubrication
     - welding
-    - misc
   - fuelLubricant:
     - gasoline
     - diesel
@@ -389,7 +342,6 @@ prepperKnowledge:
     - grease
     - biofuel
     - storage
-    - misc
   - infrastructure:
     - road
     - bridge
@@ -397,7 +349,6 @@ prepperKnowledge:
     - rail
     - dock
     - airstrip
-    - misc
 - materialsChemistry:
   - woodPlant:
     - lumber
@@ -406,7 +357,6 @@ prepperKnowledge:
     - bamboo
     - charcoal
     - tarPitch
-    - misc
   - metalMetallurgy:
     - ironSteel
     - copperBronze
@@ -414,7 +364,6 @@ prepperKnowledge:
     - preciousMetal
     - casting
     - forging
-    - misc
   - stoneCeramicGlass:
     - brick
     - pottery
@@ -422,7 +371,6 @@ prepperKnowledge:
     - cement
     - lime
     - kiln
-    - misc
   - textileLeather:
     - wool
     - cotton
@@ -430,7 +378,6 @@ prepperKnowledge:
     - leatherTanning
     - sewing
     - weaving
-    - misc
   - chemical:
     - vinegar
     - lye
@@ -438,7 +385,6 @@ prepperKnowledge:
     - alcohol
     - explosive
     - fuel
-    - misc
   - plasticComposite:
     - resin
     - epoxy
@@ -446,7 +392,6 @@ prepperKnowledge:
     - rubber
     - laminate
     - fiberglass
-    - misc
   - recyclingSubstitute:
     - scrapMetal
     - reclaimedWood
@@ -454,7 +399,6 @@ prepperKnowledge:
     - plasticReuse
     - glassReuse
     - diySubstitute
-    - misc
 - toolsMachines:
   - handTool:
     - axe
@@ -463,7 +407,6 @@ prepperKnowledge:
     - hammer
     - knife
     - file
-    - misc
   - powerTool:
     - drill
     - grinder
@@ -471,7 +414,6 @@ prepperKnowledge:
     - generator
     - compressor
     - chainsaw
-    - misc
   - agriculturalImplement:
     - plow
     - seeder
@@ -479,7 +421,6 @@ prepperKnowledge:
     - tiller
     - irrigationPump
     - sprayer
-    - misc
   - workshopMachinery:
     - lathe
     - mill
@@ -487,7 +428,6 @@ prepperKnowledge:
     - press
     - forge
     - casting
-    - misc
   - repairMaintenance:
     - sharpening
     - calibration
@@ -495,7 +435,6 @@ prepperKnowledge:
     - lubrication
     - troubleshooting
     - manual
-    - misc
   - improvisedTool:
     - blacksmithTong
     - homemadeJig
@@ -503,7 +442,6 @@ prepperKnowledge:
     - stoneTool
     - boneTool
     - salvageCreation
-    - misc
   - computing:
     - hardware
     - software
@@ -511,7 +449,6 @@ prepperKnowledge:
     - programming
     - networking
     - repair
-    - misc
   - operationManual:
     - vehicle
     - pump
@@ -519,7 +456,6 @@ prepperKnowledge:
     - radio
     - heavyEquipment
     - householdAppliance
-    - misc
 - communityCommunication:
   - communication:
     - radio
@@ -528,7 +464,6 @@ prepperKnowledge:
     - postal
     - code
     - encryption
-    - misc
   - leadershipGovernance:
     - decisionMaking
     - conflictResolution
@@ -536,7 +471,6 @@ prepperKnowledge:
     - resourceManagement
     - authority
     - crisisLeadership
-    - misc
   - tradeEconomy:
     - barter
     - currency
@@ -544,7 +478,6 @@ prepperKnowledge:
     - inventory
     - recordKeeping
     - logistics
-    - misc
   - lawJustice:
     - rule
     - enforcement
@@ -552,7 +485,6 @@ prepperKnowledge:
     - punishment
     - mediation
     - right
-    - misc
   - educationRecord:
     - teachingChild
     - adultSkill
@@ -560,7 +492,6 @@ prepperKnowledge:
     - archive
     - oralTradition
     - writingSystem
-    - misc
   - cultureMorale:
     - ritual
     - symbol
@@ -568,7 +499,6 @@ prepperKnowledge:
     - custom
     - ceremony
     - morale
-    - misc
   - philosophyBelief:
     - ethic
     - worldview
@@ -576,7 +506,6 @@ prepperKnowledge:
     - survivalPhilosophy
     - cooperation
     - motivation
-    - misc
 - scienceKnowledge:
   - mathematics:
     - arithmetic
@@ -585,7 +514,6 @@ prepperKnowledge:
     - trigonometry
     - calculus
     - statistics
-    - misc
   - physics:
     - mechanic
     - electricity
@@ -593,14 +521,12 @@ prepperKnowledge:
     - optic
     - acoustic
     - nuclear
-    - misc
   - theoreticalChemistry:
     - inorganic
     - organic
     - physical
     - analytical
     - biochemistry
-    - misc
   - biology:
     - botany
     - zoology
@@ -608,7 +534,6 @@ prepperKnowledge:
     - genetics
     - ecology
     - evolution
-    - misc
   - earthScience:
     - geology
     - hydrology
@@ -616,7 +541,6 @@ prepperKnowledge:
     - soilScience
     - volcanology
     - seismology
-    - misc
   - astronomy:
     - solarSystem
     - star
@@ -624,7 +548,6 @@ prepperKnowledge:
     - cosmology
     - navigationStar
     - telescope
-    - misc
   - engineering:
     - civil
     - mechanical
@@ -632,7 +555,6 @@ prepperKnowledge:
     - chemical
     - material
     - computer
-    - misc
   - socialScience:
     - psychology
     - sociology
@@ -640,14 +562,12 @@ prepperKnowledge:
     - politicalScience
     - economics
     - history
-    - misc
   - metaKnowledge:
     - scientificMethod
     - philosophyScience
     - historyScience
     - classification
     - measurement
-    - misc
 - navigationSurveying:
   - map:
     - topographic
@@ -656,7 +576,6 @@ prepperKnowledge:
     - aviationChart
     - cadastral
     - thematic
-    - misc
   - compass:
     - magnetic
     - lensatic
@@ -664,7 +583,6 @@ prepperKnowledge:
     - maintenance
     - technique
     - improvised
-    - misc
   - gps:
     - handheld
     - mounted
@@ -672,7 +590,6 @@ prepperKnowledge:
     - satellite
     - accuracy
     - offlineUse
-    - misc
   - celestial:
     - sun
     - moon
@@ -680,7 +597,6 @@ prepperKnowledge:
     - planet
     - sextant
     - starChart
-    - misc
   - surveying:
     - transit
     - level
@@ -688,14 +604,12 @@ prepperKnowledge:
     - chain
     - marker
     - boundary
-    - misc
   - orientation:
     - pacing
     - bearing
     - timing
     - landmark
     - improvised
-    - misc
 - wasteRecycling:
   - householdWaste:
     - compost
@@ -704,7 +618,6 @@ prepperKnowledge:
     - sorting
     - storage
     - reduction
-    - misc
   - hazardousWaste:
     - oil
     - chemical
@@ -712,7 +625,6 @@ prepperKnowledge:
     - eWaste
     - medical
     - disposal
-    - misc
   - sanitation:
     - toilet
     - sewage
@@ -720,7 +632,6 @@ prepperKnowledge:
     - handwashing
     - disinfection
     - wasteWater
-    - misc
   - recycling:
     - paper
     - metal
@@ -728,7 +639,6 @@ prepperKnowledge:
     - glass
     - textile
     - wood
-    - misc
   - composting:
     - aerobic
     - anaerobic
@@ -736,7 +646,6 @@ prepperKnowledge:
     - bokashi
     - mulch
     - safety
-    - misc
   - repurposing:
     - scrapUse
     - toolReuse
@@ -744,7 +653,6 @@ prepperKnowledge:
     - buildingReuse
     - clothingReuse
     - improvisation
-    - misc
 - climateWeather:
   - observation:
     - temperature
@@ -753,7 +661,6 @@ prepperKnowledge:
     - humidity
     - pressure
     - cloudType
-    - misc
   - forecasting:
     - shortTerm
     - longTerm
@@ -761,7 +668,6 @@ prepperKnowledge:
     - stormPrediction
     - droughtPrediction
     - signNature
-    - misc
   - instrument:
     - thermometer
     - barometer
@@ -769,7 +675,6 @@ prepperKnowledge:
     - hygrometer
     - rainGauge
     - weatherStation
-    - misc
   - climateScience:
     - atmosphere
     - greenhouse
@@ -777,7 +682,6 @@ prepperKnowledge:
     - paleoclimate
     - regionalClimate
     - changeImpact
-    - misc
   - agricultureImpact:
     - plantingCalendar
     - frostDate
@@ -785,7 +689,6 @@ prepperKnowledge:
     - pestCycle
     - harvestWindow
     - microclimate
-    - misc
   - disasterPreparedness:
     - hurricane
     - tornado
@@ -793,7 +696,280 @@ prepperKnowledge:
     - drought
     - wildfire
     - blizzard
-    - misc
+- standardsCodes:
+  - buildingCode:
+    - ibc
+    - residentialCode
+    - existingBuilding
+    - energyCode
+    - accessibility
+    - seismic
+    - multiDomain
+  - electricalCode:
+    - nec
+    - iec
+    - groundingBonding
+    - arcFlash
+    - lowVoltage
+    - solarPv
+    - multiDomain
+  - plumbingCode:
+    - ipc
+    - upc
+    - potableWater
+    - wastewater
+    - venting
+    - fixture
+    - multiDomain
+  - mechanicalCode:
+    - imc
+    - hvac
+    - refrigeration
+    - duct
+    - ventilation
+    - combustionAir
+    - multiDomain
+  - fireSafetyCode:
+    - nfpa
+    - alarmSystem
+    - sprinkler
+    - lifeSafety
+    - wildfire
+    - explosives
+    - multiDomain
+  - structuralStandard:
+    - loadCombination
+    - concrete
+    - steel
+    - masonry
+    - wood
+    - seismicDetail
+    - multiDomain
+  - materialStandard:
+    - astm
+    - asme
+    - ansi
+    - iso
+    - coating
+    - grading
+    - multiDomain
+  - weldingStandard:
+    - awsD1
+    - procedureQualification
+    - welderQualification
+    - inspection
+    - brazing
+    - consumable
+    - multiDomain
+  - pressureVessel:
+    - asmeBpvc
+    - design
+    - fabrication
+    - inspection
+    - reliefProtection
+    - repairAlteration
+    - multiDomain
+  - pipelineStandard:
+    - api
+    - awwaC
+    - integrityManagement
+    - corrosionControl
+    - hydrotest
+    - pigging
+    - multiDomain
+  - waterWastewaterStandard:
+    - awwa
+    - treatment
+    - distribution
+    - backflow
+    - stormwater
+    - septic
+    - multiDomain
+  - environmentalStandard:
+    - epa
+    - airQuality
+    - waterQuality
+    - waste
+    - spill
+    - remediation
+    - multiDomain
+  - occupationalSafety:
+    - osha
+    - hazardCommunication
+    - ppe
+    - lockoutTagout
+    - confinedSpace
+    - fallProtection
+    - multiDomain
+  - transportationStandard:
+    - roadDesign
+    - bridgeDesign
+    - railway
+    - maritime
+    - aviation
+    - vehicleStandard
+    - multiDomain
+  - communicationStandard:
+    - radioService
+    - spectrum
+    - antenna
+    - protocol
+    - encryptionPolicy
+    - interference
+    - multiDomain
+  - dataStandard:
+    - fileFormat
+    - metadata
+    - gis
+    - barcode
+    - recordRetention
+    - interchange
+    - multiDomain
+  - measurementStandard:
+    - metrology
+    - calibration
+    - tolerance
+    - unitSystem
+    - instrument
+    - traceability
+    - multiDomain
+  - documentationStandard:
+    - drawing
+    - symbol
+    - dimensioning
+    - numbering
+    - revisionControl
+    - submission
+    - multiDomain
+  - qualityManagement:
+    - iso9001
+    - auditing
+    - correctiveAction
+    - documentControl
+    - supplier
+    - risk
+    - multiDomain
+  - safetyManagement:
+    - iso45001
+    - processSafety
+    - managementOfChange
+    - incidentInvestigation
+    - emergencyPlan
+    - training
+    - multiDomain    
+- craft:
+  - textileLeather:
+    - spinning
+    - weaving
+    - sewing
+    - dyeing
+    - leatherwork
+    - cordage
+    - multiDomain
+  - woodcraft:
+    - carving
+    - joinery
+    - coopering
+    - turning
+    - greenwood
+    - toolHandle
+    - multiDomain
+  - metalcraft:
+    - coldWork
+    - forging
+    - sheetMetal
+    - smallTooling
+    - brazing
+    - heatTreat
+    - multiDomain
+  - potteryCeramic:
+    - clayPrep
+    - handBuild
+    - wheelThrow
+    - kilnFiring
+    - glazeApply
+    - moldSlip
+    - multiDomain
+  - glasswork:
+    - cutFit
+    - lampwork
+    - slumpFuse
+    - anneal
+    - repairLeadCame
+    - beadMaking
+    - multiDomain
+  - paperPrint:
+    - papermaking
+    - printingPress
+    - typography
+    - engraving
+    - bookbinding
+    - pastePaper
+    - multiDomain
+  - basketryWeaving:
+    - willow
+    - reed
+    - bark
+    - netMaking
+    - matWeave
+    - frameBasket
+    - multiDomain
+  - candleSoap:
+    - tallowCandle
+    - beeswaxCandle
+    - soapColdProcess
+    - soapHotProcess
+    - lyeProduction
+    - scentColor
+    - multiDomain
+  - instrumentMaking:
+    - stringInstrument
+    - fluteWhistle
+    - drum
+    - bowHair
+    - soundpostBridge
+    - finishSetup
+    - multiDomain
+  - jewelrySmallParts:
+    - coldConnection
+    - lostWax
+    - casting
+    - stoneSetting
+    - finishing
+    - repair
+    - multiDomain
+  - paintFinish:
+    - pigment
+    - oilBinder
+    - varnish
+    - stain
+    - gesso
+    - surfacePrep
+    - multiDomain
+  - craftTools:
+    - loom
+    - spinningWheel
+    - kiln
+    - smallForge
+    - moldsJigs
+    - stitchingPony
+    - multiDomain
+  - repairMending:
+    - darning
+    - patching
+    - zipperReplace
+    - reheel
+    - patchLeather
+    - reinforcing
+    - multiDomain
+  - patternDesign:
+    - garmentPattern
+    - templateDraft
+    - grading
+    - layout
+    - fitAdjust
+    - blockPattern
+    - multiDomain    
 - entertainment:
   - music:
     - singing
@@ -802,7 +978,6 @@ prepperKnowledge:
     - rehearsal
     - ensemble
     - folkSong
-    - misc
   - storytelling:
     - oralTradition
     - drama
@@ -810,7 +985,6 @@ prepperKnowledge:
     - tale
     - poetry
     - reading
-    - misc
   - game:
     - board
     - card
@@ -818,7 +992,6 @@ prepperKnowledge:
     - folk
     - sport
     - puzzle
-    - misc
   - celebration:
     - festival
     - holiday
@@ -826,7 +999,6 @@ prepperKnowledge:
     - parade
     - dance
     - firework
-    - misc
   - art:
     - drawing
     - painting
@@ -834,7 +1006,6 @@ prepperKnowledge:
     - potteryArt
     - carving
     - decoration
-    - misc
   - performance:
     - theater
     - dance
@@ -842,84 +1013,49 @@ prepperKnowledge:
     - busking
     - stageCraft
     - costume
-    - misc
-  - craft:
-    - knitting
-    - crochet
-    - quilting
-    - basketry
-    - calligraphy
-    - bookbinding
-    - misc
-- misc:
-  - history
-  - literature
-  - art
-  - politics
-  - hobby
-  - philosophy
-  - misc
 - multiDomainGuides:
-    survivalGeneral:
-    - basicManual
-    - wilderness
-    - urban
-    - family
-    - military
-    - collapseProsper
-    - misc
-    - multiDomain
-    prepping:
-    - bugOutBag
-    - shelterInPlace
-    - stockpiling
-    - offGridLiving
-    - communityPrepping
-    - logistics
-    - misc
-    - multiDomain
-    homesteading:
-    - selfSufficiency
-    - gardening
-    - livestock
-    - building
-    - energy
-    - economy
-    - misc
-    - multiDomain
-    disasterScenario:
-    - nuclearWar
-    - pandemic
-    - emp
-    - naturalDisaster
-    - economicCollapse
-    - zombieApocalypse
-    - misc
-    - multiDomain
-    mindset:
-    - stoic
-    - religious
-    - motivational
-    - tacticalMindset
-    - communitySpirit
-    - moraleBoost
-    - misc
-    - multiDomain
-    compendium:
-    - survivalBible
-    - prepperLibrary
-    - encyclopedic
-    - governmentManual
-    - militaryDoctrine
-    - handbook
-    - misc
-    - multiDomain
-    entertainmentFlavored:
-    - zombie
-    - alien
-    - asteroid
-    - dystopia
-    - parody
-    - semiPractical
-    - misc
-    - multiDomain
+  - encyclopedia
+  - compendium
+  - handbook
+  - manual
+  - fieldGuide
+  - checklist
+  - almanac
+  - atlas
+  - workbook
+  - prepping
+  - offGridLiving
+  - homesteading
+  - bushcraft
+  - urbanSurvival
+  - wildernessSurvival
+  - familyPreparedness
+  - disasterScenario
+  - naturalDisaster
+  - nuclearWar
+  - pandemic
+  - emp
+  - economicCollapse
+  - civilUnrest
+  - warzone
+  - zombieApocalypse
+  - bugOut
+  - shelterInPlace
+  - stockpiling
+  - logistics
+  - supplyChain
+  - firstAid
+  - waterPurification
+  - foodPreservation
+  - navigation
+  - communication
+  - energySystem
+  - construction
+  - security
+  - leadership
+  - communityBuilding
+  - education
+  - psychology
+  - morale
+  - governmentManual
+  - militaryDoctrine

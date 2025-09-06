@@ -3,7 +3,7 @@ use candle_core::{Device, Tensor, DType};
 use candle_nn::VarBuilder;
 use candle_transformers::models::xlm_roberta::{XLMRobertaModel, Config as XLMRobertaConfig};
 use tokenizers::Tokenizer;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Instant;
 
 /// Real BGE-M3 embedding model (uses XLM-RoBERTa backbone)
@@ -21,9 +21,9 @@ impl EmbeddingModel {
         println!("🚀 Device: Metal (MPS) - Fast GPU acceleration enabled!");
         
         println!("🔄 Loading BGE-M3 model from local files...");
-        
-        // Load from local model directory
-        let model_dir = Path::new("models/bge-m3");
+
+        // Resolve model directory (supports root-level ../models and legacy ./models)
+        let model_dir = resolve_model_dir()?;
         
         // Load tokenizer
         println!("📥 Loading tokenizer...");
@@ -165,4 +165,40 @@ impl EmbeddingModel {
         
         Ok(emb_cpu)
     }
+}
+
+fn resolve_model_dir() -> Result<PathBuf> {
+    // Allow explicit override via env var
+    if let Ok(dir) = std::env::var("APP_MODEL_DIR") {
+        let p = PathBuf::from(&dir);
+        if p.exists() {
+            println!("📦 Using APP_MODEL_DIR: {}", p.display());
+            return Ok(p);
+        }
+    }
+    if let Ok(dir) = std::env::var("MODEL_DIR") {
+        let p = PathBuf::from(&dir);
+        if p.exists() {
+            println!("📦 Using MODEL_DIR: {}", p.display());
+            return Ok(p);
+        }
+    }
+
+    // Preferred root-level location after move
+    let root = Path::new("../models/bge-m3");
+    if root.exists() {
+        println!("📦 Using model dir: {}", root.display());
+        return Ok(root.to_path_buf());
+    }
+
+    // Legacy in-crate location (fallback)
+    let legacy = Path::new("models/bge-m3");
+    if legacy.exists() {
+        println!("📦 Using legacy model dir: {}", legacy.display());
+        return Ok(legacy.to_path_buf());
+    }
+
+    Err(anyhow!(
+        "Could not locate BGE-M3 model directory. Checked APP_MODEL_DIR, MODEL_DIR, ../models/bge-m3, and models/bge-m3"
+    ))
 }
