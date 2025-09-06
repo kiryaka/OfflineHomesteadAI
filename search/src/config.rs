@@ -165,9 +165,9 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             data: DataConfig {
-                raw_txt_dir: "../data/raw".to_string(),
-                tantivy_index_dir: "../data/indexes/tantivy".to_string(),
-                lancedb_index_dir: "../data/indexes/lancedb".to_string(),
+                raw_txt_dir: "../dev_data/raw".to_string(),
+                tantivy_index_dir: "../dev_data/indexes/tantivy".to_string(),
+                lancedb_index_dir: "../dev_data/indexes/lancedb".to_string(),
             },
             search: SearchConfig {
                 default_limit: 5,

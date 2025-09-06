@@ -4,12 +4,10 @@ target/
 Cargo.lock
 
 # Tantivy indexes
-data/tantivy_index/
 *.idx
 
 # Data directories and files
 dev_data/
-data/
 /TXT/
 *.txt
 *.zip
