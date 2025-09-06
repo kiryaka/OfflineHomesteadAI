@@ -7,11 +7,12 @@ edition = "2021"
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 indicatif = "0.17"
-lancedb = "0.22"
-arrow-array = "55.0"
-arrow-schema = "55.0"
+lancedb = "~0.22"
+arrow-array = "~55.0"
+arrow-schema = "~55.0"
 futures = "0.3"
 tokio = { version = "1.0", features = ["full"] }
 localdb-core = { path = "../localdb-core" }
 localdb-embed = { path = "../localdb-embed" }
 tempfile = "3.0"
+walkdir = "2.5"

@@ -6,8 +6,10 @@ fn fake_embedder_shapes_and_determinism() {
     std::env::set_var("APP_USE_FAKE_EMBEDDINGS", "1");
 
     let embedder = get_default_embedder().expect("embedder");
-    let v1 = embedder.embed_text("hello world").expect("embed");
-    let v2 = embedder.embed_text("hello world").expect("embed");
+    let texts = vec!["hello world".to_string(), "hello world".to_string()];
+    let embs = embedder.embed_batch(&texts).expect("embed_batch");
+    let v1 = &embs[0];
+    let v2 = &embs[1];
 
     assert_eq!(v1.len(), 1024, "embedding dim is 1024");
 
