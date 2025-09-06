@@ -4,6 +4,7 @@ members = [
   "crates/localdb-text",
   "crates/localdb-embed",
   "crates/localdb-vector",
+  "crates/localdb-hybrid",
   "apps/localdb-cli",
 ]
 resolver = "2"

@@ -7,4 +7,5 @@ edition = "2021"
 anyhow = "1.0"
 walkdir = "2.5"
 tantivy = "~0.24"
+localdb-core = { path = "../localdb-core" }
 

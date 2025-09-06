@@ -15,3 +15,4 @@ tokio = { version = "1.0", features = ["full"] }
 localdb-core = { path = "../localdb-core" }
 localdb-embed = { path = "../localdb-embed" }
 tempfile = "3.0"
+walkdir = "2.5"
