@@ -10,7 +10,8 @@ use arrow_array::{RecordBatch, RecordBatchIterator, Int32Array, FixedSizeListArr
 use arrow_schema::{Schema, Field, DataType};
 
 use localdb_core::types::DocumentChunk;
-use localdb_embed::{get_default_embedder, Embedder};
+use localdb_core::traits::Embedder;
+use localdb_embed::get_default_embedder;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanceDocument {
@@ -41,7 +42,7 @@ impl LanceDbIndexer {
         pb.set_style(ProgressStyle::default_bar().template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} chunks ({percent}%) {msg}").unwrap().progress_chars("#>-") );
         let mut processed = 0usize; let mut batch_docs = Vec::new(); let batch_size = 1000usize;
         for (i, chunk) in chunks.iter().enumerate() {
-            let embedding = self.embedder.embed_text(&chunk.content)?;
+            let embedding = self.embedder.embed_batch(&[chunk.content.clone()])?.remove(0);
             let doc = LanceDocument { id: chunk.id.clone(), doc_id: chunk.doc_id.clone(), doc_path: chunk.doc_path.clone(), category: chunk.category.clone(), category_text: chunk.category_text.clone(), content: chunk.content.clone(), chunk_index: chunk.chunk_index, total_chunks: chunk.total_chunks, vector: embedding };
             batch_docs.push(doc); processed += 1; pb.set_position(processed as u64); pb.set_message(format!("Processing chunk {}", i + 1));
             if batch_docs.len() >= batch_size || i == chunks.len() - 1 { self.insert_batch(&batch_docs).await?; batch_docs.clear(); if processed % 1000 == 0 { println!("\n📦 Processed batch of 1000 chunks..."); } }
@@ -101,7 +102,7 @@ impl LanceSearchEngine {
     }
 
     pub async fn search(&self, query_text: &str, limit: usize) -> Result<Vec<LanceSearchResult>, anyhow::Error> {
-        let query_embedding = self.embedder.embed_text(query_text)?; let table = self.db.open_table(&self.table_name).execute().await?;
+        let query_embedding = self.embedder.embed_batch(&[query_text.to_string()])?.remove(0); let table = self.db.open_table(&self.table_name).execute().await?;
         let pq_limit = limit * 10; let mut results = table.vector_search(query_embedding)?.limit(pq_limit).execute().await?;
         let mut all_results = Vec::new();
         while let Some(batch) = futures::TryStreamExt::try_next(&mut results).await? {
