@@ -14,12 +14,12 @@ if [ ! -d "data/raw" ]; then
 fi
 
 # Check if Python environment is set up
-if [ ! -d "elt" ]; then
+if [ ! -d "etl" ]; then
     echo "❌ ELT directory not found"
     exit 1
 fi
 
-cd elt
+cd etl
 
 # Run the complete pipeline
 echo "📄 Extracting documents..."

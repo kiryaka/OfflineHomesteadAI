@@ -16,13 +16,13 @@ Extract, Load, Transform pipeline for processing documents and preparing them fo
 pip install -r requirements.txt
 
 # Process documents
-python -m elt.cli extract --input data/raw --output data/processed
+python -m etl.cli extract --input data/raw --output data/processed
 
 # Generate embeddings
-python -m elt.cli embed --input data/processed --output data/embeddings
+python -m etl.cli embed --input data/processed --output data/embeddings
 
 # Load into search system
-python -m elt.cli load --embeddings data/embeddings --indexes data/indexes
+python -m etl.cli load --embeddings data/embeddings --indexes data/indexes
 ```
 
 ## Architecture

@@ -23,12 +23,12 @@ cd ..
 
 # Setup Python ELT pipeline
 echo "🐍 Setting up Python ELT pipeline..."
-cd elt
+cd etl
 if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
     echo "✅ Python ELT pipeline installed"
 else
-    echo "❌ requirements.txt not found in elt directory"
+    echo "❌ requirements.txt not found in etl directory"
 fi
 cd ..
 
@@ -36,5 +36,5 @@ echo "✅ Setup complete!"
 echo ""
 echo "Next steps:"
 echo "1. Add your documents to data/raw/"
-echo "2. Run: ./scripts/run_elt_pipeline.sh"
+echo "2. Run: ./scripts/run_etl_pipeline.sh"
 echo "3. Run: ./scripts/run_search.sh"

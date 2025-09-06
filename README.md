@@ -21,7 +21,7 @@ universe/
 │   ├── Cargo.toml            # Rust dependencies
 │   └── config*.toml          # Configuration files
 │
-├── elt/                      # Python data processing pipeline
+├── etl/                      # Python data processing pipeline
 │   ├── src/                  # Source code
 │   │   ├── extractors/       # Document extractors
 │   │   ├── processors/       # Text processors
@@ -39,7 +39,7 @@ universe/
 │
 ├── scripts/                  # Utility scripts
 │   ├── setup.sh             # Initial setup
-│   ├── run_elt_pipeline.sh  # Run data processing
+│   ├── run_etl_pipeline.sh  # Run data processing
 │   └── run_search.sh        # Run search system
 │
 └── docs/                     # Documentation
@@ -67,7 +67,7 @@ cp your_documents/* data/raw/
 
 ```bash
 # Run the complete ELT pipeline
-./scripts/run_elt_pipeline.sh
+./scripts/run_etl_pipeline.sh
 ```
 
 ### 4. Start Search System
@@ -84,7 +84,7 @@ cp your_documents/* data/raw/
 - `search/config.prod.toml` - Production settings
 
 ### ELT Pipeline (Python)
-- `elt/config/elt_config.yaml` - Processing settings
+- `etl/config/etl_config.yaml` - Processing settings
 
 ## 📊 Features
 
@@ -111,7 +111,7 @@ cargo run --bin lancedb_production_example  # Run production example
 
 ### Python ELT Pipeline
 ```bash
-cd elt
+cd etl
 pip install -r requirements.txt
 python -m src.cli --help      # See available commands
 ```

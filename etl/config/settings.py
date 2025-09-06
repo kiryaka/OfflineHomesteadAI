@@ -14,7 +14,7 @@ class ELTConfig:
         Args:
             config_file: Path to YAML configuration file
         """
-        self.config_file = config_file or Path("config/elt_config.yaml")
+        self.config_file = config_file or Path("config/etl_config.yaml")
         self.config = self._load_config()
     
     def _load_config(self) -> Dict[str, Any]:

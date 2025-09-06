@@ -17,7 +17,7 @@ cd search
 # Check if indexes exist
 if [ ! -d "../data/indexes/tantivy" ] || [ ! -d "../data/indexes/lancedb" ]; then
     echo "❌ Search indexes not found"
-    echo "Please run the ELT pipeline first: ./scripts/run_elt_pipeline.sh"
+    echo "Please run the ETL pipeline first: ./scripts/run_etl_pipeline.sh"
     exit 1
 fi
 

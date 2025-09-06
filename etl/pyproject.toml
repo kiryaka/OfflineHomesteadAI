@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "universe-elt"
+name = "universe-etl"
 version = "0.1.0"
 description = "Extract, Load, Transform pipeline for document processing"
 authors = [
@@ -45,11 +45,11 @@ dev = [
 ]
 
 [project.scripts]
-universe-elt = "elt.cli:main"
+universe-etl = "etl.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["elt*"]
+include = ["etl*"]
 
 [tool.black]
 line-length = 88

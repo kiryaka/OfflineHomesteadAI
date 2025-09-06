@@ -50,7 +50,7 @@ Raw Documents → ELT Pipeline → Processed Data → Search System
 ```
 universe/
 ├── search/           # Rust search system
-├── elt/             # Python data processing
+├── etl/             # Python data processing
 ├── data/            # Shared data directory
 ├── scripts/         # Utility scripts
 └── docs/            # Documentation
