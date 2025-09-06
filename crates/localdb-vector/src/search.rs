@@ -1,6 +1,7 @@
 use anyhow::Result;
 use futures::TryStreamExt;
 use lancedb::{connect, Connection};
+use lancedb::query::{QueryBase, ExecutableQuery};
 use localdb_core::traits::Embedder;
 use localdb_embed::get_default_embedder;
 use localdb_core::traits::VectorIndexer;

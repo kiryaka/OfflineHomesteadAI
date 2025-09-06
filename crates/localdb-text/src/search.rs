@@ -1,5 +1,6 @@
 use anyhow::Result;
 use tantivy::{Index, collector::TopDocs, query::QueryParser, TantivyDocument};
+use tantivy::schema::Value;
 
 pub struct TantivySearchEngine {
 	index: Index,

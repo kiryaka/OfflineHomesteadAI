@@ -1,4 +1,5 @@
-use localdb_embed::{BgeM3Embedder};
+use localdb_embed::BgeM3Embedder;
+use localdb_core::traits::Embedder;
 
 fn main() -> anyhow::Result<()> {
     let embedder = BgeM3Embedder::new()?;

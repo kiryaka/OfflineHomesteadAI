@@ -7,6 +7,7 @@ use std::path::Path;
 
 use localdb_core::types::DocumentChunk;
 use crate::schema::{build_arrow_schema, EMBEDDING_DIM};
+use localdb_embed::get_default_embedder;
 
 #[derive(Debug, Clone)]
 pub struct LanceDocument {
@@ -46,6 +47,14 @@ impl LanceDbIndexer {
 		Ok(())
 	}
 
+	pub async fn index_chunks(&self, chunks: &[DocumentChunk]) -> Result<()> {
+		if chunks.is_empty() { return Ok(()); }
+		let embedder = get_default_embedder()?;
+		let texts: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
+		let embeddings = embedder.embed_batch(&texts)?;
+		self.index(chunks, &embeddings).await
+	}
+
 	async fn insert_batch(&self, docs: &[LanceDocument]) -> Result<()> {
 		if docs.is_empty() { return Ok(()); }
 		let record_batch = self.docs_to_record_batch(docs)?; let schema = record_batch.schema();
@@ -62,17 +71,17 @@ impl LanceDbIndexer {
 		let schema = build_arrow_schema();
 		let mut ids = Vec::new(); let mut doc_ids = Vec::new(); let mut doc_paths = Vec::new(); let mut categories = Vec::new(); let mut category_texts = Vec::new(); let mut contents = Vec::new(); let mut chunk_indices = Vec::new(); let mut total_chunks = Vec::new(); let mut vectors: Vec<Option<Vec<Option<f32>>>> = Vec::new();
 		for doc in docs { ids.push(doc.id.clone()); doc_ids.push(doc.doc_id.clone()); doc_paths.push(doc.doc_path.clone()); categories.push(doc.category.clone()); category_texts.push(doc.category_text.clone()); contents.push(doc.content.clone()); chunk_indices.push(doc.chunk_index as i32); total_chunks.push(doc.total_chunks as i32); vectors.push(Some(doc.vector.iter().map(|&x| Some(x)).collect())); }
-		let record_batch = RecordBatch::try_new(schema, vec![
-			Arc::new(StringArray::from(ids)),
-			Arc::new(StringArray::from(doc_ids)),
-			Arc::new(StringArray::from(doc_paths)),
-			Arc::new(StringArray::from(categories)),
-			Arc::new(StringArray::from(category_texts)),
-			Arc::new(StringArray::from(contents)),
-			Arc::new(Int32Array::from(chunk_indices)),
-			Arc::new(Int32Array::from(total_chunks)),
-			Arc::new(FixedSizeListArray::from_iter_primitive::<arrow_array::types::Float32Type, _, _>(vectors.into_iter(), EMBEDDING_DIM as i32)),
-		])?;
+        let record_batch = RecordBatch::try_new(schema, vec![
+            Arc::new(StringArray::from(ids)),
+            Arc::new(StringArray::from(doc_ids)),
+            Arc::new(StringArray::from(doc_paths)),
+            Arc::new(StringArray::from(categories)),
+            Arc::new(StringArray::from(category_texts)),
+            Arc::new(StringArray::from(contents)),
+            Arc::new(Int32Array::from(chunk_indices)),
+            Arc::new(Int32Array::from(total_chunks)),
+            Arc::new(FixedSizeListArray::from_iter_primitive::<arrow_array::types::Float32Type, _, _>(vectors.into_iter(), EMBEDDING_DIM)),
+        ])?;
 		Ok(record_batch)
 	}
 }

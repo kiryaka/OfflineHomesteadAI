@@ -5,7 +5,7 @@ pub fn masked_mean_l2(hidden: &Tensor, attention_mask: &Tensor) -> Result<Tensor
     let dims = hidden.dims();
     assert_eq!(dims.len(), 3, "hidden shape must be [B,T,H]");
     let batch = dims[0];
-    let time = dims[1];
+    let _time = dims[1]; // @todo: use sequence length if needed for pooling variants
     let hidden_dim = dims[2];
 
     let mask = attention_mask.to_device(hidden.device())?.to_dtype(hidden.dtype())?;

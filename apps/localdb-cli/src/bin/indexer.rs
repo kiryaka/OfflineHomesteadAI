@@ -2,6 +2,7 @@ use std::{env, fs, path::PathBuf};
 use localdb_core::config::Config;
 use localdb_core::data_processor::DataProcessor;
 use localdb_text::TantivyIndexer;
+use localdb_embed::get_default_embedder;
 use localdb_vector::LanceDbIndexer;
 
 fn main() -> anyhow::Result<()> {
@@ -27,7 +28,10 @@ fn main() -> anyhow::Result<()> {
         if lancedb_path.exists() { fs::remove_dir_all(&lancedb_path)?; }
         fs::create_dir_all(&lancedb_path)?;
         let lancedb_indexer = tokio::runtime::Runtime::new()?.block_on(async { LanceDbIndexer::new(&lancedb_path, "documents").await })?;
-        tokio::runtime::Runtime::new()?.block_on(async { lancedb_indexer.index_chunks(&chunks).await })?;
+        let embedder = get_default_embedder()?;
+        let texts: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
+        let embeddings = embedder.embed_batch(&texts)?;
+        tokio::runtime::Runtime::new()?.block_on(async { lancedb_indexer.index(&chunks, &embeddings).await })?;
     }
     println!("\n✅ Indexing completed successfully!"); if !skip_tantivy { println!("📊 Indexed {} documents into Tantivy", file_count); }
     println!("📊 Processed {} chunks for LanceDB", chunks.len());
@@ -35,4 +39,3 @@ fn main() -> anyhow::Result<()> {
     println!("💡 To search LanceDB, use: cargo run --bin localdb-vector-search '<query>'");
     Ok(())
 }
-

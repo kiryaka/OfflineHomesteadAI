@@ -1,6 +1,12 @@
 use anyhow::Result;
 use std::path::Path;
-use tantivy::{doc, Index};
+use tantivy::{doc, Index, TantivyDocument};
+use tantivy::collector::TopDocs;
+use tantivy::query::QueryParser;
+use tantivy::schema::Value;
+
+use localdb_core::traits::TextIndexer;
+use localdb_core::types::{DocumentChunk, SearchHit, SourceKind};
 
 use crate::tantivy_utils::{build_schema, register_tokenizer};
 
@@ -59,4 +65,37 @@ impl TantivyIndexer {
 		else if components.len() == 1 { let category = components[0].as_os_str().to_string_lossy(); format!("/{}", category) }
 		else { "/misc".to_string() }
 	}
+}
+
+impl TextIndexer for TantivyIndexer {
+    fn index(&self, chunks: &[DocumentChunk]) -> anyhow::Result<()> {
+        let mut index_writer = self.index.writer(50_000_000)?;
+        for c in chunks {
+            let doc = doc!(
+                self.id_field => c.id.clone(),
+                self.text_field => c.content.clone(),
+                self.category_field => tantivy::schema::Facet::from(&c.category),
+                self.category_text_field => c.category_text.clone(),
+                self.path_field => c.doc_path.clone(),
+            );
+            index_writer.add_document(doc)?;
+        }
+        index_writer.commit()?;
+        Ok(())
+    }
+
+    fn search(&self, query: &str, k: usize) -> anyhow::Result<Vec<SearchHit>> {
+        let reader = self.index.reader()?;
+        let searcher = reader.searcher();
+        let qp = QueryParser::for_index(&self.index, vec![self.text_field]);
+        let q = qp.parse_query(query)?;
+        let top_docs = searcher.search(&q, &TopDocs::with_limit(k))?;
+        let mut hits = Vec::new();
+        for (score, addr) in top_docs {
+            let doc: TantivyDocument = searcher.doc(addr)?;
+            let id = doc.get_first(self.id_field).and_then(|v| v.as_str()).unwrap_or("").to_string();
+            hits.push(SearchHit { id, score, source: SourceKind::Text });
+        }
+        Ok(hits)
+    }
 }
