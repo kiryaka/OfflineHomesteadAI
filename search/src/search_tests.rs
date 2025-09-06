@@ -171,7 +171,7 @@ fn search_with_facets(
             .and_then(|v| v.as_str())
             .unwrap_or("-");
 
-        // Use the full facet path for counting (e.g., /tech/math, /lit/fiction)
+        // Use the full facet path for counting (e.g., /agriculture, /foraging)
         let facet_key = if category.starts_with("/") {
             &category[1..] // Remove leading slash
         } else {
@@ -218,8 +218,8 @@ fn main() -> anyhow::Result<()> {
         );
         eprintln!("Examples:");
         eprintln!("  {} -q 'love OR war'", args[0]);
-        eprintln!("  {} -q 'coffee' -f tech lit", args[0]);
-        eprintln!("  {} -q 'classics' -f tech/math -n 10", args[0]);
+        eprintln!("  {} -q 'coffee' -f agriculture foraging", args[0]);
+        eprintln!("  {} -q 'survival' -f survival/gear -n 10", args[0]);
         eprintln!("  {} -q 'coffe' --fuzzy", args[0]);
         std::process::exit(1);
     }

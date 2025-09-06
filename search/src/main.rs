@@ -8,6 +8,7 @@ use tantivy::doc;
 use tantivy::query::{BooleanQuery, Occur, QueryParser, TermQuery};
 use tantivy::schema::*;
 use tantivy::snippet::SnippetGenerator;
+use tantivy::tokenizer::{TextAnalyzer, SimpleTokenizer, LowerCaser, StopWordFilter};
 use tantivy::{Index, Term};
 use walkdir::WalkDir;
 
@@ -25,8 +26,14 @@ fn build_schema() -> Schema {
     let _doc_id_field = schema_builder.add_text_field("doc_id", STRING | STORED);
     let _doc_path_field = schema_builder.add_text_field("doc_path", STRING | STORED);
     // vector_field removed - no vector search needed
-    // Regular text field for exact matching
-    let _text_field = schema_builder.add_text_field("text", TEXT | STORED);
+    // Regular text field for exact matching with stop word filtering
+    let text_field_indexing = TextFieldIndexing::default()
+        .set_tokenizer("text_with_stopwords")
+        .set_index_option(IndexRecordOption::WithFreqsAndPositions);
+    let text_options = TextOptions::default()
+        .set_indexing_options(text_field_indexing)
+        .set_stored();
+    let _text_field = schema_builder.add_text_field("text", text_options);
 
     // Note: N-gram field removed - using FuzzyTermQuery on regular text field instead
 
@@ -36,6 +43,22 @@ fn build_schema() -> Schema {
     let _category_text_field = schema_builder.add_text_field("category_text", STRING | STORED);
 
     schema_builder.build()
+}
+
+/// Generate facet category based on directory structure
+fn get_facet_from_path(file_path: &Path, data_dir: &Path) -> String {
+    // Get the relative path from the data directory
+    let relative_path = file_path.strip_prefix(data_dir).unwrap_or(file_path);
+    
+    // Get the parent directory (the facet category)
+    if let Some(parent) = relative_path.parent() {
+        if let Some(facet) = parent.to_str() {
+            return facet.to_string();
+        }
+    }
+    
+    // Fallback to "misc" if no parent directory
+    "misc".to_string()
 }
 
 /// List all .txt files in the given directory recursively
@@ -53,25 +76,12 @@ fn list_txt_files(root: &Path) -> Vec<PathBuf> {
     txt_files
 }
 
-// seed_from_path function removed - using deterministic facet allocation
-
-/// Generate a deterministic facet category based on filename hash
-/// Uses categories from configuration
-fn deterministic_facet(filename: &str, categories: &[String]) -> Facet {
-    use std::hash::{Hash, Hasher};
-    let mut hasher = twox_hash::XxHash64::with_seed(0);
-    filename.hash(&mut hasher);
-    let hash = hasher.finish();
-
-    // Use modulo to get consistent facet assignment
-    let index = (hash as usize) % categories.len();
-    Facet::from(&format!("/{}", categories[index]))
-}
+// seed_from_path function removed - using directory-based facet allocation
 
 // generate_vector function removed - no vector search needed
 
 /// Index all text files from the data directory
-fn index_files(index: &Index, data_dir: &Path, config: &Config) -> anyhow::Result<()> {
+fn index_files(index: &Index, data_dir: &Path, _config: &Config) -> anyhow::Result<()> {
     let schema = index.schema();
     let id_field = schema.get_field("id")?;
     let doc_id_field = schema.get_field("doc_id")?;
@@ -103,9 +113,10 @@ fn index_files(index: &Index, data_dir: &Path, config: &Config) -> anyhow::Resul
 
         // vector generation removed - no vector search needed
 
-        // Generate deterministic facet category based on filename
-        let filename = file_path.file_name().unwrap().to_string_lossy();
-        let category = deterministic_facet(&filename, config.get_facet_categories());
+        // Generate facet category based on directory structure
+        let _filename = file_path.file_name().unwrap().to_string_lossy();
+        let category_str = get_facet_from_path(file_path, &data_dir);
+        let category_facet = Facet::from(&format!("/{}", category_str));
 
         // Create document with the specified schema
         let doc_id_str = if !doc_id.is_empty() {
@@ -121,8 +132,8 @@ fn index_files(index: &Index, data_dir: &Path, config: &Config) -> anyhow::Resul
             // vector_field removed - no vector search needed
             text_field => content,
             // text_ngram_field removed - using FuzzyTermQuery instead
-            category_field => category,
-            category_text_field => category.to_string()
+            category_field => category_facet,
+            category_text_field => category_str
         ))?;
     }
 
@@ -238,17 +249,20 @@ fn run_search_query(
 
 fn main() -> anyhow::Result<()> {
     // Load configuration
-    let config = Config::load().unwrap_or_else(|_| {
-        println!("Warning: Could not load config.toml, using defaults");
-        Config::default()
-    });
+    let config = Config::load().map_err(|e| {
+        eprintln!("Error loading config: {}", e);
+        e
+    })?;
 
     // Parse command line arguments
     let args: Vec<String> = env::args().skip(1).collect();
     let data_dir = args
         .get(0)
         .map(|s| PathBuf::from(s))
-        .unwrap_or_else(|| config.get_raw_txt_dir());
+        .unwrap_or_else(|| {
+            let dir: String = config.get("data.raw_txt_dir").unwrap_or_else(|_| "../dev_data/txt".to_string());
+            PathBuf::from(dir)
+        });
     let query_string = args
         .get(1)
         .cloned()
@@ -263,7 +277,8 @@ fn main() -> anyhow::Result<()> {
 
     // Create index
     let schema = build_schema();
-    let index_dir = config.get_tantivy_index_dir();
+    let index_dir: String = config.get("data.tantivy_index_dir").unwrap_or_else(|_| "../dev_data/indexes/tantivy".to_string());
+    let index_dir = PathBuf::from(index_dir);
 
     // Clean up existing index
     if index_dir.exists() {
@@ -273,6 +288,23 @@ fn main() -> anyhow::Result<()> {
 
     // Create index (no n-gram tokenizer needed - using FuzzyTermQuery instead)
     let index = Index::builder().schema(schema).create_in_dir(&index_dir)?;
+    
+    // Register custom tokenizer with stop word filtering
+    let stop_words = vec![
+        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "he", "in", "is", 
+        "it", "its", "of", "on", "that", "the", "to", "was", "will", "with", "or", "but", "not", 
+        "this", "these", "they", "them", "their", "there", "then", "than", "so", "if", "when", 
+        "where", "why", "how", "what", "which", "who", "whom", "whose", "can", "could", "should", 
+        "would", "may", "might", "must", "shall", "do", "does", "did", "have", "had", "having"
+    ];
+    
+    let tokenizer = TextAnalyzer::builder(SimpleTokenizer::default())
+        .filter(LowerCaser)
+        .filter(StopWordFilter::remove(stop_words.into_iter().map(|s| s.to_string())))
+        .build();
+    
+    index.tokenizers().register("text_with_stopwords", tokenizer);
+    
     println!("Created index at: {}", index_dir.display());
 
     // Index all text files
@@ -285,8 +317,7 @@ fn main() -> anyhow::Result<()> {
     if facet_prefix.is_none() {
         println!("\n{}", "=".repeat(50));
         println!("Additional facet examples:");
-        run_search_query(&index, &query_string, Some("tech"), 5)?;
-        run_search_query(&index, &query_string, Some("lit/romcom"), 5)?;
+        // Additional facet examples removed - using real directory-based facets
     }
 
     Ok(())

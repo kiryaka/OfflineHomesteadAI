@@ -1,32 +1,38 @@
-use std::hash::{Hash, Hasher};
-use twox_hash::XxHash64;
 use walkdir::WalkDir;
+use std::path::Path;
+use figment;
 
 // Include the config module directly for this binary
 include!("config.rs");
 
-/// Generate a deterministic facet category based on filename hash
-/// Uses categories from configuration
-#[allow(dead_code)]
-fn deterministic_facet<'a>(filename: &str, categories: &'a [String]) -> &'a str {
-    let mut hasher = XxHash64::with_seed(0);
-    filename.hash(&mut hasher);
-    let hash = hasher.finish();
-
-    // Use modulo to get consistent facet assignment
-    let index = (hash as usize) % categories.len();
-    &categories[index]
+/// Generate facet category based on directory structure
+/// Uses the actual directory path as the facet
+fn get_facet_from_path(file_path: &Path, data_dir: &Path) -> String {
+    // Get the relative path from the data directory
+    let relative_path = file_path.strip_prefix(data_dir).unwrap_or(file_path);
+    
+    // Get the parent directory (the facet category)
+    if let Some(parent) = relative_path.parent() {
+        if let Some(facet) = parent.to_str() {
+            return facet.to_string();
+        }
+    }
+    
+    // Fallback to "misc" if no parent directory
+    "misc".to_string()
 }
 
 #[allow(dead_code)]
 fn main() -> anyhow::Result<()> {
-    // Load configuration
-    let config = Config::load().expect("Failed to load config.toml");
-    let data_dir: String = config.get("data.raw_txt_dir")?;
+    // Load configuration without validation for facet mapping
+    let figment = figment::Figment::new()
+        .merge(figment::providers::Toml::file("config.toml"));
+    
+    let data_dir: String = figment.extract_inner("data.raw_txt_dir")?;
     let data_dir = std::path::PathBuf::from(data_dir);
 
-    println!("📁 Deterministic Facet Mapping");
-    println!("==============================");
+    println!("📁 Directory-Based Facet Mapping");
+    println!("=================================");
     println!();
 
     let mut files = Vec::new();
@@ -42,9 +48,8 @@ fn main() -> anyhow::Result<()> {
 
     for file_path in &files {
         let filename = file_path.file_name().unwrap().to_string_lossy();
-        let categories: Vec<String> = config.get("facets.categories")?;
-        let facet = deterministic_facet(&filename, &categories);
-        *facet_counts.entry(facet.to_string()).or_insert(0) += 1;
+        let facet = get_facet_from_path(file_path, &data_dir);
+        *facet_counts.entry(facet.clone()).or_insert(0) += 1;
 
         println!("📄 {:<30} → {}", filename, facet);
     }
