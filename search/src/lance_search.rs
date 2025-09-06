@@ -6,14 +6,46 @@ use tantivy_demo::lance_utils::LanceSearchEngine;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        eprintln!("Usage: {} <query> [db_path] [table_name]", args[0]);
-        eprintln!("Example: {} 'survival skills' ../dev_data/indexes/lancedb documents", args[0]);
+        eprintln!("Usage: {} <query> [--limit N] [db_path] [table_name]", args[0]);
+        eprintln!("Example: {} 'survival skills' --limit 5 ../dev_data/indexes/lancedb documents", args[0]);
         std::process::exit(1);
     }
 
     let query_text = &args[1];
-    let db_path = args.get(2).map(PathBuf::from).unwrap_or_else(|| PathBuf::from("../dev_data/indexes/lancedb"));
-    let table_name = args.get(3).map(|s| s.as_str()).unwrap_or("documents");
+    let mut limit = 10;
+    let mut db_path = PathBuf::from("../dev_data/indexes/lancedb");
+    let mut table_name = "documents";
+
+    // Parse arguments
+    let mut i = 2;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--limit" => {
+                if i + 1 < args.len() {
+                    if let Ok(l) = args[i + 1].parse::<usize>() {
+                        limit = l;
+                        i += 1; // Skip the next argument since we consumed it
+                    } else {
+                        eprintln!("Error: --limit requires a number");
+                        std::process::exit(1);
+                    }
+                } else {
+                    eprintln!("Error: --limit requires a number");
+                    std::process::exit(1);
+                }
+            }
+            _ if !args[i].starts_with('-') => {
+                // This is either db_path or table_name
+                if db_path == PathBuf::from("../dev_data/indexes/lancedb") {
+                    db_path = PathBuf::from(&args[i]);
+                } else {
+                    table_name = &args[i];
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
 
     println!("🔍 LanceDB Search Only");
     println!("======================");
@@ -29,7 +61,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("📊 {}", stats);
 
     // Perform search
-    let results = search_engine.search(query_text, 10).await?;
+    let results = search_engine.search(query_text, limit).await?;
 
     println!("\n🔍 Found {} results for: \"{}\"", results.len(), query_text);
 
