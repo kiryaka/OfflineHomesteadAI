@@ -9,8 +9,8 @@ use std::sync::Arc;
 use arrow_array::{RecordBatch, RecordBatchIterator, Int32Array, FixedSizeListArray, StringArray};
 use arrow_schema::{Schema, Field, DataType};
 
-use localdb_core::data_processor::DocumentChunk;
-use localdb_embed::{Embedder, get_default_embedder};
+use localdb_core::types::DocumentChunk;
+use localdb_embed::{get_default_embedder, Embedder};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LanceDocument {

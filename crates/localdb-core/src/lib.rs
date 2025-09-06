@@ -5,4 +5,7 @@
 
 pub mod config;
 pub mod data_processor;
+pub mod error;
+pub mod traits;
+pub mod types;
 

@@ -1,18 +1,7 @@
 use anyhow::Result;
+use crate::types::DocumentChunk;
 use std::fs;
 use std::path::{Path, PathBuf};
-
-#[derive(Debug, Clone)]
-pub struct DocumentChunk {
-    pub id: String,
-    pub doc_id: String,
-    pub doc_path: String,
-    pub category: String,
-    pub category_text: String,
-    pub content: String,
-    pub chunk_index: usize,
-    pub total_chunks: usize,
-}
 
 #[derive(Debug, Clone)]
 pub struct ChunkingConfig {
