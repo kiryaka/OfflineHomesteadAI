@@ -4,16 +4,14 @@ This document describes the environment-based configuration system that separate
 
 ## 🏗️ Architecture
 
-### Configuration Files
-- **`config.dev.toml`** - Development configuration (fast iteration)
-- **`config.prod.toml`** - Production configuration (100GB corpus optimized)
-- **`config.toml`** - Default/fallback configuration
+### Configuration Files (workspace)
+- apps/localdb-cli/config.dev.toml – Development configuration (fast iteration)
+- apps/localdb-cli/config.prod.toml – Production configuration
+- apps/localdb-cli/config.test.toml – Test configuration
+- apps/localdb-cli/config.toml – Default/fallback configuration
 
 ### Environment Detection
-The system automatically detects the environment using:
-1. `RUST_ENV` environment variable
-2. Defaults to `dev` if not set
-3. Supports `dev`, `development`, `prod`, `production`
+Set `RUST_ENV` to switch configs (`dev` default, or `prod`, `test`).
 
 ## 🔧 Development Configuration
 
@@ -74,28 +72,12 @@ performance_profiling = true
 - **Production monitoring** and profiling
 - **Optimized for 25M+ vectors**
 
-## 🧪 Testing Framework
+## 🧪 Tests
 
-### Automated Test Suite
+Run full-flow engine tests:
 ```bash
-# Run all configuration tests
-cargo run --release --bin config_test_runner all
-
-# Test specific environments
-cargo run --release --bin config_test_runner dev
-cargo run --release --bin config_test_runner prod
-
-# Test specific aspects
-cargo run --release --bin config_test_runner performance
-cargo run --release --bin config_test_runner memory
+cargo test -p localdb-text -p localdb-vector -- --show-output
 ```
-
-### Test Coverage
-- **Environment Validation**: Ensures dev/prod configs meet requirements
-- **Parameter Scaling**: Validates dev < prod for performance parameters
-- **Performance Regression**: Prevents performance degradation
-- **Memory Regression**: Ensures memory usage scales properly
-- **Configuration Loading**: Tests environment-based loading
 
 ### Validation Rules
 
@@ -117,30 +99,19 @@ cargo run --release --bin config_test_runner memory
 
 ### Quick Commands
 ```bash
-# Show current environment and config
-./dev_workflow.sh
-
-# Compare dev vs prod configurations
-./dev_workflow.sh compare
-
-# Run all tests and validations
-./dev_workflow.sh all
-
-# Test specific environment
-./dev_workflow.sh dev
-./dev_workflow.sh prod
+# Index and search using CLIs
+cargo run -p localdb-cli --bin localdb-indexer
+cargo run -p localdb-cli --bin localdb-tantivy-search 'query'
+cargo run -p localdb-cli --bin localdb-vector-search 'query'
 ```
 
 ### Environment Switching
 ```bash
-# Use development configuration
-RUST_ENV=dev cargo run --release --bin lancedb_production_example
+# Development (default)
+RUST_ENV=dev cargo run -p localdb-cli --bin localdb-indexer
 
-# Use production configuration
-RUST_ENV=prod cargo run --release --bin lancedb_production_example
-
-# Use default configuration (falls back to dev)
-cargo run --release --bin lancedb_production_example
+# Production
+RUST_ENV=prod cargo run -p localdb-cli --bin localdb-indexer
 ```
 
 ## 📊 Performance Comparison

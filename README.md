@@ -15,11 +15,14 @@ Raw Documents → ELT Pipeline → Processed Data → Search System
 
 ```
 universe/
-├── search/                    # Rust search system
-│   ├── src/                   # Source code
-│   ├── tests/                 # Tests
-│   ├── Cargo.toml            # Rust dependencies
-│   └── config*.toml          # Configuration files
+├── crates/                   # Rust library crates
+│   ├── localdb-core          # config + data processing
+│   ├── localdb-text          # Tantivy index/search
+│   ├── localdb-embed         # Embedding backends (Candle + fake)
+│   └── localdb-vector        # LanceDB index/search
+│
+├── apps/                     # CLI binaries
+│   └── localdb-cli           # indexer + search CLIs (config*.toml)
 │
 ├── etl/                      # Python data processing pipeline
 │   ├── src/                  # Source code
@@ -30,17 +33,14 @@ universe/
 │   ├── requirements.txt      # Python dependencies
 │   └── pyproject.toml        # Python project config
 │
-├── data/                     # Shared data directory
-│   ├── raw/                  # Raw documents
-│   ├── processed/            # Clean text files
-│   ├── chunks/               # Chunked text
-│   ├── embeddings/           # Vector embeddings
-│   └── indexes/              # Search indexes
+├── dev_data/                 # Developer data (indexes, txt)
+├── test_data/                # Test data (gitignored)
+├── models/                   # Local models (e.g., bge-m3)
 │
 ├── scripts/                  # Utility scripts
-│   ├── setup.sh             # Initial setup
-│   ├── run_etl_pipeline.sh  # Run data processing
-│   └── run_search.sh        # Run search system
+│   ├── setup.sh              # Initial setup
+│   ├── run_etl_pipeline.sh   # Run data processing
+│   └── run_search.sh         # Demo vector search
 │
 └── docs/                     # Documentation
 ```
@@ -70,18 +70,28 @@ cp your_documents/* data/raw/
 ./scripts/run_etl_pipeline.sh
 ```
 
-### 4. Start Search System
+### 4. Index and Search (Rust)
 
 ```bash
-# Start the search server
-./scripts/run_search.sh
+# Build workspace
+cargo build
+
+# Index from dev_data/txt into dev_data/indexes/*
+cargo run -p localdb-cli --bin localdb-indexer
+
+# Text search (Tantivy)
+cargo run -p localdb-cli --bin localdb-tantivy-search 'your query'
+
+# Vector search (LanceDB)
+cargo run -p localdb-cli --bin localdb-vector-search 'your query'
 ```
 
 ## 🔧 Configuration
 
 ### Search System (Rust)
-- `search/config.dev.toml` - Development settings
-- `search/config.prod.toml` - Production settings
+- `apps/localdb-cli/config.dev.toml` - Development settings
+- `apps/localdb-cli/config.prod.toml` - Production settings
+- `apps/localdb-cli/config.test.toml` - Test settings
 
 ### ELT Pipeline (Python)
 - `etl/config/etl_config.yaml` - Processing settings
@@ -102,11 +112,15 @@ cp your_documents/* data/raw/
 
 ## 🛠️ Development
 
-### Rust Search System
+### Rust workspace
 ```bash
-cd search
-cargo test                    # Run tests
-cargo run --bin lancedb_production_example  # Run production example
+# Run full-flow tests per engine
+cargo test -p localdb-text -p localdb-vector -- --show-output
+
+# Build and run CLIs
+cargo run -p localdb-cli --bin localdb-indexer
+cargo run -p localdb-cli --bin localdb-tantivy-search 'query'
+cargo run -p localdb-cli --bin localdb-vector-search 'query'
 ```
 
 ### Python ELT Pipeline

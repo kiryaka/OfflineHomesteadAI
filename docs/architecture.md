@@ -49,9 +49,12 @@ Raw Documents → ELT Pipeline → Processed Data → Search System
 
 ```
 universe/
-├── search/           # Rust search system
+├── crates/          # Rust library crates (core/text/embed/vector)
+├── apps/            # Rust CLI binaries (index/search)
 ├── etl/             # Python data processing
-├── data/            # Shared data directory
+├── dev_data/        # Developer data (indexes/txt)
+├── test_data/       # Tests data (gitignored)
+├── models/          # Local models (e.g., bge-m3)
 ├── scripts/         # Utility scripts
 └── docs/            # Documentation
 ```

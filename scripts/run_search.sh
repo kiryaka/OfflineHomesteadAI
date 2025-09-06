@@ -6,23 +6,17 @@ set -e
 
 echo "🔍 Starting search system..."
 
-# Check if search directory exists
-if [ ! -d "search" ]; then
-    echo "❌ Search directory not found"
-    exit 1
+# Run a demo vector search via the new CLI
+
+echo "🔎 Running demo vector search (localdb-cli)..."
+
+# Optional: index first if no indexes exist
+if [ ! -d "dev_data/indexes/lancedb" ]; then
+  echo "ℹ️ No LanceDB index found under dev_data/indexes/lancedb. Indexing sample data..."
+  cargo run -p localdb-cli --bin localdb-indexer || exit 1
 fi
 
-cd search
+# Run a sample query
+cargo run -p localdb-cli --bin localdb-vector-search "fire" || exit 1
 
-# Check if indexes exist
-if [ ! -d "../data/indexes/tantivy" ] || [ ! -d "../data/indexes/lancedb" ]; then
-    echo "❌ Search indexes not found"
-    echo "Please run the ETL pipeline first: ./scripts/run_etl_pipeline.sh"
-    exit 1
-fi
-
-# Run the search system
-echo "🚀 Starting search server..."
-cargo run --release --bin lancedb_production_example
-
-cd ..
+echo "✅ Done"

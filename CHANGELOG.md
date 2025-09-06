@@ -83,7 +83,7 @@ src/
 ├── main.rs                   # Main binary
 ├── facet_mapping.rs          # Facet mapping binary
 ├── lancedb_demo.rs           # LanceDB demo binary
-├── lancedb_production_example.rs  # Production example binary
+├── apps/localdb-cli               # CLI binaries (index/search)
 └── search_tests.rs           # Search tests binary
 
 tests/
@@ -108,8 +108,8 @@ dev_workflow.sh               # Development workflow script
 - **MIT License**: Open source with permissive licensing
 
 ### Repository
-- **GitHub**: https://github.com/yourusername/tantivy-lancedb-hybrid-search
-- **Documentation**: https://docs.rs/tantivy-lancedb-hybrid-search
+- **GitHub**: https://github.com/yourusername/local-db-engine
+- **Documentation**: https://docs.rs/local-db-engine
 - **Issues**: GitHub Issues for bug reports and feature requests
 - **Discussions**: GitHub Discussions for community interaction
 

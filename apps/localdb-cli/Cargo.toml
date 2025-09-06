@@ -1,0 +1,31 @@
+[package]
+name = "localdb-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+localdb-core = { path = "../../crates/localdb-core" }
+localdb-text = { path = "../../crates/localdb-text" }
+localdb-embed = { path = "../../crates/localdb-embed" }
+localdb-vector = { path = "../../crates/localdb-vector" }
+walkdir = "2.5"
+indicatif = "0.17"
+
+[[bin]]
+name = "localdb-indexer"
+path = "src/bin/indexer.rs"
+
+[[bin]]
+name = "localdb-tantivy-search"
+path = "src/bin/tantivy_search.rs"
+
+[[bin]]
+name = "localdb-vector-search"
+path = "src/bin/vector_search.rs"
+
+[[bin]]
+name = "localdb-search-only"
+path = "src/bin/search_only.rs"
+

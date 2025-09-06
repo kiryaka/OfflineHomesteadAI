@@ -1,0 +1,10 @@
+[workspace]
+members = [
+  "crates/localdb-core",
+  "crates/localdb-text",
+  "crates/localdb-embed",
+  "crates/localdb-vector",
+  "apps/localdb-cli",
+]
+resolver = "2"
+

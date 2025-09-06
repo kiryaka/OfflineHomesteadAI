@@ -1,0 +1,5 @@
+[data]
+raw_txt_dir = "../dev_data/raw"
+tantivy_index_dir = "../dev_data/indexes/tantivy"
+lancedb_index_dir = "../dev_data/indexes/lancedb"
+

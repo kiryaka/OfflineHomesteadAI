@@ -1,0 +1,14 @@
+[data]
+raw_txt_dir = "../dev_data/txt"
+tantivy_index_dir = "../dev_data/indexes/tantivy"
+lancedb_index_dir = "../dev_data/indexes/lancedb"
+
+[search]
+default_limit = 5
+max_limit = 100
+fuzzy_max_distance = 4
+
+[embedding]
+dimension = 1024
+model = "BAAI/bge-m3"
+

@@ -11,8 +11,8 @@ Thank you for your interest in contributing to this project! This document provi
 
 ### Development Setup
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/tantivy-lancedb-hybrid-search.git`
-3. Navigate to the project: `cd tantivy-lancedb-hybrid-search`
+2. Clone your fork: `git clone https://github.com/yourusername/local-db-engine.git`
+3. Navigate to the project: `cd local-db-engine`
 4. Build the project: `cargo build`
 5. Run tests: `./dev_workflow.sh all`
 
@@ -229,9 +229,9 @@ Brief description of changes.
 
 ## 📞 Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/tantivy-lancedb-hybrid-search/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/tantivy-lancedb-hybrid-search/discussions)
-- **Documentation**: [Project Wiki](https://github.com/yourusername/tantivy-lancedb-hybrid-search/wiki)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/local-db-engine/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/local-db-engine/discussions)
+- **Documentation**: [Project Wiki](https://github.com/yourusername/local-db-engine/wiki)
 
 ## 🎉 Recognition
 

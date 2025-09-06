@@ -1,0 +1,5 @@
+[build]
+# Match search/.cargo/config.toml so root/Test Explorer builds use the same flags/cache
+rustflags = ["-C", "target-cpu=native"]
+target-dir = "target"
+
