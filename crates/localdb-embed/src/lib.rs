@@ -17,31 +17,34 @@ pub use device::*;
 pub use pool::*;
 pub use tokenize::*;
 
-pub struct BgeM3Embedder { model: XLMRobertaModel, tokenizer: Tokenizer, device: Device }
+pub struct BgeM3Embedder { model: XLMRobertaModel, tokenizer: Tokenizer, device: Device, dtype: DType }
 
 impl BgeM3Embedder {
     pub fn new() -> Result<Self> {
         let device = select_device();
-        println!("🔄 Loading BGE-M3 model from local files...");
+        let dtype = match &device { Device::Metal(_) => DType::F16, _ => DType::F32 };
+        println!("🔄 Loading BGE-M3 (XLM-R) from local files... device={:?} dtype={:?}", device, dtype);
         let model_dir = resolve_model_dir()?;
         let tokenizer_path = model_dir.join("tokenizer.json");
         let tokenizer = Tokenizer::from_file(&tokenizer_path)
             .map_err(|e| anyhow!("Failed to load tokenizer from {}: {}", tokenizer_path.display(), e))?;
         let config_path = model_dir.join("config.json");
         let config: XLMRobertaConfig = serde_json::from_str(&std::fs::read_to_string(&config_path)?)?;
-        let weights_path = model_dir.join("pytorch_model.bin");
-        let dtype = DType::F32;
-        let weights = candle_core::pickle::read_all(&weights_path)?;
-        let weights_map: std::collections::HashMap<String, candle_core::Tensor> = weights.into_iter().collect();
-        let vb = VarBuilder::from_tensors(weights_map, dtype, &device);
+        // Safetensors only: fail fast if missing
+        let st = model_dir.join("model.safetensors");
+        if !st.exists() { return Err(anyhow!("{} not found", st.display())); }
+        // Safety: relying on safetensors metadata
+        let vb = unsafe { VarBuilder::from_mmaped_safetensors(&[st.to_string_lossy().into_owned()], dtype, &device)? };
         let model = XLMRobertaModel::new(&config, vb)?;
-        Ok(Self { model, tokenizer, device })
+        Ok(Self { model, tokenizer, device, dtype })
     }
 
+    #[allow(dead_code)]
     fn embed_one(&self, text: &str) -> Result<Vec<f32>> {
         let start = Instant::now();
         let max_len = self.max_len();
         let (input_ids, attention_mask) = tokenize_on_device(&self.tokenizer, text, max_len, &self.device)?;
+        // XLM‑R in candle-transformers expects a token_type_ids tensor; use zeros.
         let token_type_ids = Tensor::zeros((1, max_len), DType::I64, &self.device)?;
         let hidden_states = self.model.forward(&input_ids, &attention_mask, &token_type_ids, None, None, None)?;
         let embedding = masked_mean_l2(&hidden_states, &attention_mask)?;
@@ -56,7 +59,16 @@ impl CoreEmbedder for BgeM3Embedder {
     fn dim(&self) -> usize { 1024 }
     fn max_len(&self) -> usize { 256 }
     fn embed_batch(&self, texts: &[String]) -> Result<Vec<Vec<f32>>> {
-        texts.iter().map(|t| self.embed_one(t)).collect()
+        use crate::tokenize::tokenize_batch_on_device;
+        let max_len = self.max_len();
+        let (input_ids, attention_mask) = tokenize_batch_on_device(&self.tokenizer, texts, max_len, &self.device, self.dtype)?;
+        let token_type_ids = Tensor::zeros(attention_mask.dims(), DType::I64, &self.device)?;
+        let hidden_states = self.model.forward(&input_ids, &attention_mask, &token_type_ids, None, None, None)?;
+        let embedding = masked_mean_l2(&hidden_states, &attention_mask)?;
+        let cpu = embedding.to_device(&Device::Cpu)?;
+        let v = cpu.to_vec2::<f32>()?;
+        if !v.is_empty() { assert_eq!(v[0].len(), self.dim()); }
+        Ok(v)
     }
 }
 
@@ -91,4 +103,3 @@ fn resolve_model_dir() -> Result<PathBuf> {
     let legacy = Path::new("models/bge-m3"); if legacy.exists() { println!("📦 Using legacy model dir: {}", legacy.display()); return Ok(legacy.to_path_buf()); }
     Err(anyhow!("Could not locate BGE-M3 model directory"))
 }
-

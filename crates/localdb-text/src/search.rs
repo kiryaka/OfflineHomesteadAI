@@ -1,6 +1,9 @@
 use anyhow::Result;
 use tantivy::{Index, collector::TopDocs, query::QueryParser, TantivyDocument};
+use tantivy::query::{BoostQuery, BooleanQuery, Occur, Query};
 use tantivy::schema::Value;
+use localdb_core::traits::TextIndexer;
+use localdb_core::types::{DocumentChunk, SearchHit, SourceKind};
 
 pub struct TantivySearchEngine {
 	index: Index,
@@ -33,18 +36,41 @@ impl TantivySearchEngine {
 		Ok(Self { index, searcher, id_field, text_field, category_text_field, path_field })
 	}
 
-	pub fn search(&self, query_text: &str, limit: usize) -> Result<Vec<SearchResult>, anyhow::Error> {
-		let query_parser = QueryParser::for_index(&self.index, vec![self.text_field]);
-		let query = query_parser.parse_query(query_text)?;
-		let top_docs = self.searcher.search(&query, &TopDocs::with_limit(limit))?;
-		let mut results = Vec::new();
-		for (score, doc_address) in top_docs { let doc: TantivyDocument = self.searcher.doc(doc_address)?;
-			let id = doc.get_first(self.id_field).unwrap().as_str().unwrap();
-			let category = doc.get_first(self.category_text_field).unwrap().as_str().unwrap();
-			let path = doc.get_first(self.path_field).unwrap().as_str().unwrap();
-			let snippet_generator = tantivy::snippet::SnippetGenerator::create(&self.searcher, &query, self.text_field)?;
-			let snippet = snippet_generator.snippet_from_doc(&doc);
-			results.push(SearchResult { score, id: id.to_string(), category: category.to_string(), path: path.to_string(), snippet: snippet.to_html() }); }
+    pub fn search(&self, query_text: &str, limit: usize) -> Result<Vec<SearchResult>, anyhow::Error> {
+        // OR query (default behavior)
+        let parser_or = QueryParser::for_index(&self.index, vec![self.text_field]);
+        let or_q = parser_or.parse_query(query_text)?;
+
+        // AND query (conjunction by default)
+        let mut parser_and = QueryParser::for_index(&self.index, vec![self.text_field]);
+        parser_and.set_conjunction_by_default();
+        let and_q = parser_and.parse_query(query_text)?;
+
+        // Phrase query if multiword
+        let phrase_q: Option<Box<dyn Query>> = if query_text.split_whitespace().count() > 1 {
+            let phrase_text = format!("\"{}\"", query_text);
+            match parser_or.parse_query(&phrase_text) {
+                Ok(q) => Some(q.box_clone()),
+                Err(_) => None,
+            }
+        } else { None };
+
+        // Combine with boosts: phrase (x4) > AND (x2) > OR (x1)
+        let mut subs: Vec<(Occur, Box<dyn Query>)> = Vec::new();
+        subs.push((Occur::Should, Box::new(BoostQuery::new(or_q.box_clone(), 1.0))));
+        subs.push((Occur::Should, Box::new(BoostQuery::new(and_q.box_clone(), 2.0))));
+        if let Some(pq) = phrase_q { subs.push((Occur::Should, Box::new(BoostQuery::new(pq, 4.0)))); }
+        let combined = BooleanQuery::new(subs);
+
+        let top_docs = self.searcher.search(&combined, &TopDocs::with_limit(limit))?;
+        let mut results = Vec::new();
+        for (score, doc_address) in top_docs { let doc: TantivyDocument = self.searcher.doc(doc_address)?;
+            let id = doc.get_first(self.id_field).unwrap().as_str().unwrap();
+            let category = doc.get_first(self.category_text_field).unwrap().as_str().unwrap();
+            let path = doc.get_first(self.path_field).unwrap().as_str().unwrap();
+            let snippet_generator = tantivy::snippet::SnippetGenerator::create(&self.searcher, &combined, self.text_field)?;
+            let snippet = snippet_generator.snippet_from_doc(&doc);
+            results.push(SearchResult { score, id: id.to_string(), category: category.to_string(), path: path.to_string(), snippet: snippet.to_html() }); }
 		Ok(results)
 	}
 
@@ -58,4 +84,24 @@ impl TantivySearchEngine {
 		for (facet, count) in facet_counts.get(&tantivy::schema::Facet::root().to_string()) { facets.push((facet.to_string(), count)); }
 		Ok(facets)
 	}
+}
+
+impl TextIndexer for TantivySearchEngine {
+    fn index(&self, _chunks: &[DocumentChunk]) -> anyhow::Result<()> {
+        // Read-only search adapter; indexing should be done via TantivyIndexer.
+        Ok(())
+    }
+
+    fn search(&self, query: &str, k: usize) -> anyhow::Result<Vec<SearchHit>> {
+        let query_parser = QueryParser::for_index(&self.index, vec![self.text_field]);
+        let query = query_parser.parse_query(query)?;
+        let top_docs = self.searcher.search(&query, &TopDocs::with_limit(k))?;
+        let mut hits = Vec::new();
+        for (score, doc_address) in top_docs {
+            let doc: TantivyDocument = self.searcher.doc(doc_address)?;
+            let id = doc.get_first(self.id_field).and_then(|v| v.as_str()).unwrap_or("").to_string();
+            hits.push(SearchHit { id, score, source: SourceKind::Text });
+        }
+        Ok(hits)
+    }
 }

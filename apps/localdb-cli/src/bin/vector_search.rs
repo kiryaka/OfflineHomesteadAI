@@ -1,6 +1,7 @@
 use std::env;
 use std::path::PathBuf;
 use localdb_vector::LanceSearchEngine;
+use localdb_embed::get_default_embedder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -20,7 +21,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         _ => {} } i += 1; }
     println!("🔍 localdb-vector-search\n======================");
     println!("Query: {}", query_text); println!("Database path: {}", db_path.display()); println!("Table: {}", table_name);
-    let search_engine = LanceSearchEngine::new(db_path, table_name).await?;
+    let embedder = get_default_embedder()?;
+    let search_engine = LanceSearchEngine::new(db_path, table_name, embedder).await?;
     let results = search_engine.search(query_text, limit).await?;
     println!("\n🔍 Found {} results for: \"{}\"", results.len(), query_text);
     for (i, result) in results.iter().enumerate() {
@@ -29,4 +31,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
-

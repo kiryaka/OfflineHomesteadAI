@@ -56,21 +56,31 @@ cd universe
 ./scripts/setup.sh
 ```
 
-### 2. Add Documents
+### 2. Development Environment
 
 ```bash
-# Add your documents to data/raw/
-cp your_documents/* data/raw/
+# Activate virtual environment (required for Python ETL)
+source .venv/bin/activate
+
+# Or use the setup script
+./scripts/setup_env.sh
 ```
 
-### 3. Process Documents
+### 3. Add Documents
 
 ```bash
-# Run the complete ELT pipeline
-./scripts/run_etl_pipeline.sh
+# Add your documents to dev_data/raw/
+cp your_documents/* dev_data/raw/
 ```
 
-### 4. Index and Search (Rust)
+### 4. Process Documents
+
+```bash
+# Run the ELT pipeline (requires venv activated)
+cd etl && python load.py --env dev
+```
+
+### 5. Index and Search (Rust)
 
 ```bash
 # Build workspace
@@ -125,9 +135,15 @@ cargo run -p localdb-cli --bin localdb-vector-search 'query'
 
 ### Python ELT Pipeline
 ```bash
-cd etl
-pip install -r requirements.txt
-python -m src.cli --help      # See available commands
+# Activate virtual environment first
+source .venv/bin/activate
+
+# Run ETL pipeline
+cd etl && python load.py --env dev
+
+# Or use the setup script
+./scripts/setup_env.sh
+cd etl && python load.py --env dev
 ```
 
 ## 📈 Performance

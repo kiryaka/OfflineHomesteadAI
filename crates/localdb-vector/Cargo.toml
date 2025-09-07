@@ -4,15 +4,18 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
-serde = { version = "1.0", features = ["derive"] }
-indicatif = "0.17"
-lancedb = "~0.22"
-arrow-array = "^55.1"
-arrow-schema = "^55.1"
-futures = "0.3"
-tokio = { version = "1.0", features = ["full"] }
+anyhow = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+indicatif = { workspace = true }
+# Minimize transitive deps: disable default (cloud) features
+lancedb = { version = "~0.22", default-features = false }
+arrow-array = { workspace = true }
+arrow-schema = { workspace = true }
+futures = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 localdb-core = { path = "../localdb-core" }
-localdb-embed = { path = "../localdb-embed" }
 tempfile = "3.0"
 walkdir = "2.5"
+
+[dev-dependencies]
+localdb-embed = { path = "../localdb-embed" }

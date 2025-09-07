@@ -1,0 +1,21 @@
+# Python Environment
+- Always use existing .venv in workspace root
+- Never create new virtual environments
+- Activate with: source .venv/bin/activate
+
+# ETL Pipeline
+- Run from workspace root with venv activated
+- Config: etl/config/dev.yaml
+- PDF extractor: pymupdf (fast), not unstructured (slow)
+- Requirements: etl/requirements.txt
+
+# Project Structure
+- Rust code: crates/ and apps/
+- Python ETL: etl/
+- Data: dev_data/raw (PDFs) -> dev_data/txt (processed)
+- Models: models/bge-m3/
+
+# Common Commands
+- ETL: cd etl && python load.py --env dev
+- Rust build: cargo build
+- Search: scripts/run_search.sh

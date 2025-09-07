@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
+anyhow = { workspace = true }
 localdb-core = { path = "../localdb-core" }
 localdb-text = { path = "../localdb-text" }
 localdb-vector = { path = "../localdb-vector" }

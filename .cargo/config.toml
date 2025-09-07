@@ -2,4 +2,12 @@
 # Match search/.cargo/config.toml so root/Test Explorer builds use the same flags/cache
 rustflags = ["-C", "target-cpu=native"]
 target-dir = "target"
+rustc-wrapper = "sccache"
 
+[env]
+# Use sccache to cache rustc outputs locally. Requires `sccache` in PATH.
+RUSTC_WRAPPER = "sccache"
+# Bump cache size for heavy deps (DataFusion/Lance/LanceDB)
+SCCACHE_CACHE_SIZE = "50G"
+# Optional: set a specific cache directory (uncomment to customize)
+# SCCACHE_DIR = "/Users/youruser/Library/Caches/sccache"

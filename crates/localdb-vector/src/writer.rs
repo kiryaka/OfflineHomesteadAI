@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use indicatif::{ProgressBar, ProgressStyle};
 use lancedb::{connect, Connection};
 use arrow_array::{RecordBatch, RecordBatchIterator, Int32Array, FixedSizeListArray, StringArray};
@@ -7,7 +7,6 @@ use std::path::Path;
 
 use localdb_core::types::DocumentChunk;
 use crate::schema::{build_arrow_schema, EMBEDDING_DIM};
-use localdb_embed::get_default_embedder;
 
 #[derive(Debug, Clone)]
 pub struct LanceDocument {
@@ -37,23 +36,23 @@ impl LanceDbIndexer {
 		let pb = ProgressBar::new(chunks.len() as u64);
 		pb.set_style(ProgressStyle::default_bar().template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} chunks ({percent}%) {msg}").unwrap().progress_chars("#>-") );
 		let mut processed = 0usize; let mut batch_docs = Vec::new(); let batch_size = 1000usize;
-		for (i, (chunk, embedding)) in chunks.iter().zip(embeddings.iter()).enumerate() {
-			let doc = LanceDocument { id: chunk.id.clone(), doc_id: chunk.doc_id.clone(), doc_path: chunk.doc_path.clone(), category: chunk.category.clone(), category_text: chunk.category_text.clone(), content: chunk.content.clone(), chunk_index: chunk.chunk_index, total_chunks: chunk.total_chunks, vector: embedding.clone() };
-			batch_docs.push(doc); processed += 1; pb.set_position(processed as u64); pb.set_message(format!("Processing chunk {}", i + 1));
-			if batch_docs.len() >= batch_size || i == chunks.len() - 1 { self.insert_batch(&batch_docs).await?; batch_docs.clear(); if processed % 1000 == 0 { println!("\n📦 Processed batch of 1000 chunks..."); } }
-		}
+        for (i, (chunk, embedding)) in chunks.iter().zip(embeddings.iter()).enumerate() {
+            if embedding.len() != EMBEDDING_DIM as usize {
+                return Err(anyhow!(
+                    "Embedding dim mismatch for chunk {} at index {}: got {}, expected {}",
+                    chunk.id, i, embedding.len(), EMBEDDING_DIM
+                ));
+            }
+            let doc = LanceDocument { id: chunk.id.clone(), doc_id: chunk.doc_id.clone(), doc_path: chunk.doc_path.clone(), category: chunk.category.clone(), category_text: chunk.category_text.clone(), content: chunk.content.clone(), chunk_index: chunk.chunk_index, total_chunks: chunk.total_chunks, vector: embedding.clone() };
+            batch_docs.push(doc); processed += 1; pb.set_position(processed as u64); pb.set_message(format!("Processing chunk {}", i + 1));
+            if batch_docs.len() >= batch_size || i == chunks.len() - 1 { self.insert_batch(&batch_docs).await?; batch_docs.clear(); if processed % 1000 == 0 { println!("\n📦 Processed batch of 1000 chunks..."); } }
+        }
 		pb.finish_with_message("✅ LanceDB indexing completed!");
 		println!("📊 Successfully indexed {} chunks into LanceDB", processed);
 		Ok(())
 	}
 
-	pub async fn index_chunks(&self, chunks: &[DocumentChunk]) -> Result<()> {
-		if chunks.is_empty() { return Ok(()); }
-		let embedder = get_default_embedder()?;
-		let texts: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
-		let embeddings = embedder.embed_batch(&texts)?;
-		self.index(chunks, &embeddings).await
-	}
+    // Note: embedding should be handled by the façade/CLI. This crate only writes provided vectors.
 
 	async fn insert_batch(&self, docs: &[LanceDocument]) -> Result<()> {
 		if docs.is_empty() { return Ok(()); }

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""ETL Load Script - Convert all supported files to cleaned text files.
+"""ETL Load Script - Convert PDFs to cleaned text files.
 
-This script processes files of all supported types from a hierarchical directory structure,
-extracts text content using unstructured, cleans it, and saves as text files while preserving
+This script processes PDF files from a hierarchical directory structure,
+extracts text content, cleans it, and saves as text files while preserving
 the directory structure.
 
 Usage:
@@ -20,7 +20,7 @@ from tqdm import tqdm
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from config.settings import Config
-from pdf_processor import FileProcessor
+from pdf_processor import PDFProcessor
 
 
 def setup_logging(config: Config) -> None:
@@ -35,28 +35,27 @@ def setup_logging(config: Config) -> None:
     )
 
 
-def find_supported_files(raw_dir: Path, processor: FileProcessor) -> List[Path]:
-    """Find all supported files in the raw directory recursively.
+def find_pdf_files(raw_dir: Path) -> List[Path]:
+    """Find all PDF files in the raw directory recursively.
     
     Args:
         raw_dir: Root directory to search
-        processor: Processor instance to check file support
         
     Returns:
-        List of supported file paths
+        List of PDF file paths
     """
-    supported_files = []
-    for file_path in raw_dir.rglob("*"):
-        if file_path.is_file() and processor.is_supported(file_path):
-            supported_files.append(file_path)
-    return sorted(supported_files)
+    pdf_files = []
+    for pdf_path in raw_dir.rglob("*.pdf"):
+        if pdf_path.is_file():
+            pdf_files.append(pdf_path)
+    return sorted(pdf_files)
 
 
-def get_output_path(file_path: Path, raw_dir: Path, txt_dir: Path) -> Path:
+def get_output_path(pdf_path: Path, raw_dir: Path, txt_dir: Path) -> Path:
     """Get output text file path preserving directory structure.
     
     Args:
-        file_path: Source file path
+        pdf_path: Source PDF file path
         raw_dir: Source root directory
         txt_dir: Target root directory
         
@@ -64,9 +63,9 @@ def get_output_path(file_path: Path, raw_dir: Path, txt_dir: Path) -> Path:
         Output text file path
     """
     # Get relative path from raw_dir
-    rel_path = file_path.relative_to(raw_dir)
+    rel_path = pdf_path.relative_to(raw_dir)
     
-    # Change extension to .txt
+    # Change extension from .pdf to .txt
     txt_filename = rel_path.with_suffix('.txt')
     
     # Create full output path
@@ -75,14 +74,14 @@ def get_output_path(file_path: Path, raw_dir: Path, txt_dir: Path) -> Path:
     return output_path
 
 
-def process_file(file_path: Path, output_path: Path, processor: FileProcessor, 
-                dry_run: bool = False) -> Tuple[bool, str]:
-    """Process a single file.
+def process_pdf_file(pdf_path: Path, output_path: Path, processor: PDFProcessor, 
+                    dry_run: bool = False) -> Tuple[bool, str]:
+    """Process a single PDF file.
     
     Args:
-        file_path: Source file
+        pdf_path: Source PDF file
         output_path: Target text file path
-        processor: File processor instance
+        processor: PDF processor instance
         dry_run: If True, don't write files
         
     Returns:
@@ -93,8 +92,8 @@ def process_file(file_path: Path, output_path: Path, processor: FileProcessor,
         if not dry_run:
             output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Process file
-        cleaned_text = processor.process_file(file_path)
+        # Process PDF
+        cleaned_text = processor.process_pdf(pdf_path)
         
         if not cleaned_text:
             return False, "No text extracted or text too short"
@@ -112,9 +111,9 @@ def process_file(file_path: Path, output_path: Path, processor: FileProcessor,
 
 def main():
     """Main function."""
-    parser = argparse.ArgumentParser(description="Unified ETL Load Script - Convert all files to text")
-    parser.add_argument("--env", choices=["dev", "prod", "test"], default="dev",
-                       help="Environment (dev/prod/test)")
+    parser = argparse.ArgumentParser(description="ETL Load Script - Convert PDFs to text")
+    parser.add_argument("--env", choices=["dev", "prod"], default="dev",
+                       help="Environment (dev/prod)")
     parser.add_argument("--dry-run", action="store_true",
                        help="Show what would be processed without writing files")
     parser.add_argument("--verbose", "-v", action="store_true",
@@ -153,46 +152,38 @@ def main():
         logger.error(f"Raw directory does not exist: {raw_dir}")
         sys.exit(1)
     
-    # Initialize processor
-    processor = FileProcessor(config)
+    # Find all PDF files
+    logger.info("Scanning for PDF files...")
+    pdf_files = find_pdf_files(raw_dir)
     
-    # Find all supported files
-    logger.info("Scanning for supported files...")
-    supported_files = find_supported_files(raw_dir, processor)
-    
-    if not supported_files:
-        logger.warning("No supported files found in raw directory")
+    if not pdf_files:
+        logger.warning("No PDF files found in raw directory")
         return
     
-    # Show file type breakdown
-    file_types = {}
-    for file_path in supported_files:
-        ext = file_path.suffix.lower()
-        file_types[ext] = file_types.get(ext, 0) + 1
+    logger.info(f"Found {len(pdf_files)} PDF files")
     
-    logger.info(f"Found {len(supported_files)} supported files:")
-    for ext, count in sorted(file_types.items()):
-        logger.info(f"  {ext}: {count} files")
+    # Initialize processor
+    processor = PDFProcessor(config)
     
     # Process files
     success_count = 0
     error_count = 0
     
-    logger.info("Processing files...")
+    logger.info("Processing PDF files...")
     
-    for file_path in tqdm(supported_files, desc="Processing files"):
+    for pdf_path in tqdm(pdf_files, desc="Processing PDFs"):
         # Get output path
-        output_path = get_output_path(file_path, raw_dir, txt_dir)
+        output_path = get_output_path(pdf_path, raw_dir, txt_dir)
         
         # Process file
-        success, message = process_file(file_path, output_path, processor, args.dry_run)
+        success, message = process_pdf_file(pdf_path, output_path, processor, args.dry_run)
         
         if success:
             success_count += 1
-            logger.debug(f"✅ {file_path.name}: {message}")
+            logger.debug(f"✅ {pdf_path.name}: {message}")
         else:
             error_count += 1
-            logger.warning(f"❌ {file_path.name}: {message}")
+            logger.warning(f"❌ {pdf_path.name}: {message}")
     
     # Summary
     logger.info("=" * 50)

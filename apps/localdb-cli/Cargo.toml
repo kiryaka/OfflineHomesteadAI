@@ -4,17 +4,18 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
-tokio = { version = "1.0", features = ["full"] }
+anyhow = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 localdb-core = { path = "../../crates/localdb-core" }
 localdb-text = { path = "../../crates/localdb-text" }
 localdb-embed = { path = "../../crates/localdb-embed" }
 localdb-vector = { path = "../../crates/localdb-vector" }
 localdb-hybrid = { path = "../../crates/localdb-hybrid" }
-walkdir = "2.5"
-indicatif = "0.17"
+walkdir = { workspace = true }
+indicatif = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [[bin]]
 name = "localdb-cli"
 path = "src/bin/main.rs"
-

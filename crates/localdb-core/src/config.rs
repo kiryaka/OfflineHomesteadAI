@@ -3,6 +3,7 @@ use figment::{
     Figment,
 };
 use std::env;
+use std::path::{Path, PathBuf};
 
 pub struct Config {
     figment: Figment,
@@ -46,3 +47,22 @@ impl Config {
     }
 }
 
+/// Expand a user-provided path string:
+/// - Expands leading '~' to the user's home directory
+/// - Expands ${VAR} and $VAR environment variables
+/// - Returns a PathBuf without attempting to canonicalize
+pub fn expand_path<S: AsRef<str>>(input: S) -> PathBuf {
+    let s = input.as_ref();
+    // Expand env vars first
+    let expanded_env = shellexpand::env(s).unwrap_or(std::borrow::Cow::Borrowed(s));
+    // Expand ~ at start
+    let expanded = shellexpand::tilde(&expanded_env);
+    PathBuf::from(expanded.as_ref())
+}
+
+/// Resolve a possibly relative path against a given base directory after expansion.
+/// If `p` is absolute, it's returned as-is; otherwise `base.join(p)` is returned.
+pub fn resolve_with_base<S: AsRef<str>>(base: &Path, p: S) -> PathBuf {
+    let p = expand_path(p);
+    if p.is_absolute() { p } else { base.join(p) }
+}

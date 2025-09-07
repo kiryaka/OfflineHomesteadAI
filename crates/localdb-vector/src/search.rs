@@ -3,21 +3,22 @@ use futures::TryStreamExt;
 use lancedb::{connect, Connection};
 use lancedb::query::{QueryBase, ExecutableQuery};
 use localdb_core::traits::Embedder;
-use localdb_embed::get_default_embedder;
+// Note: do not depend on the embedder provider crate here; accept an Embedder from callers.
 use localdb_core::traits::VectorIndexer;
 use localdb_core::types::{DocumentChunk, SearchHit, SourceKind};
 
 pub struct LanceSearchEngine { pub(crate) db: Connection, pub(crate) table_name: String, pub(crate) embedder: Box<dyn Embedder> }
 
 impl LanceSearchEngine {
-	pub async fn new(db_path: std::path::PathBuf, table_name: &str) -> Result<Self, anyhow::Error> {
-		let embedder = get_default_embedder()?; let db = connect(db_path.to_string_lossy().as_ref()).execute().await?;
-		Ok(Self { db, table_name: table_name.to_string(), embedder })
-	}
+    pub async fn new(db_path: std::path::PathBuf, table_name: &str, embedder: Box<dyn Embedder>) -> Result<Self, anyhow::Error> {
+        let db = connect(db_path.to_string_lossy().as_ref()).execute().await?;
+        Ok(Self { db, table_name: table_name.to_string(), embedder })
+    }
 
 	pub async fn search(&self, query_text: &str, limit: usize) -> Result<Vec<LanceSearchResult>, anyhow::Error> {
-		let query_embedding = self.embedder.embed_batch(&[query_text.to_string()])?.remove(0); let table = self.db.open_table(&self.table_name).execute().await?;
-		let pq_limit = limit * 10; let mut results = table.vector_search(query_embedding)?.limit(pq_limit).execute().await?;
+        let query_embedding = self.embedder.embed_batch(&[query_text.to_string()])?.remove(0);
+        let table = self.db.open_table(&self.table_name).execute().await?;
+        let pq_limit = limit * 10; let mut results = table.vector_search(query_embedding)?.limit(pq_limit).execute().await?;
 		let mut all_results = Vec::new();
 		while let Some(batch) = TryStreamExt::try_next(&mut results).await? {
 			for i in 0..batch.num_rows() {

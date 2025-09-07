@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::path::PathBuf;
 use localdb_core::data_processor::DataProcessor;
 use localdb_vector::{LanceDbIndexer, LanceSearchEngine};
+use localdb_embed::get_default_embedder;
 use tempfile::TempDir;
 
 fn root_paths() -> (PathBuf, PathBuf) {
@@ -22,12 +23,15 @@ async fn lancedb_full_flow() {
     assert!(!chunks.is_empty());
     for ch in &chunks { assert!(ch.total_chunks >= 1); assert!(ch.chunk_index < ch.total_chunks); }
     let tmp = TempDir::new().expect("tmp"); let db_path = tmp.path().to_path_buf(); let table = "documents_test_tmp";
-    let indexer = LanceDbIndexer::new(&db_path, table).await.expect("indexer"); indexer.index_chunks(&chunks).await.expect("index chunks");
+    let indexer = LanceDbIndexer::new(&db_path, table).await.expect("indexer");
+    let embedder = get_default_embedder().expect("embedder");
+    let texts: Vec<String> = chunks.iter().map(|c| c.content.clone()).collect();
+    let embeddings = embedder.embed_batch(&texts).expect("embed_batch");
+    indexer.index(&chunks, &embeddings).await.expect("index chunks");
     eprintln!("Lance: indexed {} chunks into '{}' at {}", chunks.len(), table, db_path.display());
-    let engine = LanceSearchEngine::new(db_path, table).await.expect("engine");
+    let engine = LanceSearchEngine::new(db_path, table, embedder).await.expect("engine");
     let results = engine.search("fire", 5).await.expect("search");
     eprintln!("Lance: 'fire' -> {} hits", results.len()); assert!(!results.is_empty());
     if results.len() >= 2 { let s0 = results[0].score; let s1 = results[1].score; assert!(s0 >= s1); assert!((s0 - s1).abs() > 1e-6); }
     let top = &results[0]; assert!(!top.content.trim().is_empty()); assert!(top.path.contains("test_data/txt"));
 }
-
