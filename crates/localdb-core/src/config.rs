@@ -66,3 +66,8 @@ pub fn resolve_with_base<S: AsRef<str>>(base: &Path, p: S) -> PathBuf {
     let p = expand_path(p);
     if p.is_absolute() { p } else { base.join(p) }
 }
+//! Lightweight configuration loader and path helpers.
+//!
+//! Uses Figment to merge `config.toml` + `config.<env>.toml` + `APP_*` env vars.
+//! Provides helpers to expand `~` and `${VAR}` and to resolve relative paths
+//! against a known base directory.

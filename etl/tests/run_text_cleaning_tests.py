@@ -1,5 +1,52 @@
 #!/usr/bin/env python3
-"""Simple test runner for text cleaning validation tests."""
+"""
+Test runner for text cleaning validation tests.
+
+This script provides a comprehensive test runner for the ETL pipeline's text cleaning
+functionality. It runs individual format tests with detailed output and provides
+a complete summary of the validation results across all supported formats.
+
+Key Features:
+- Individual format testing with detailed validation results
+- Comprehensive status reporting (PASS, FAIL, PENDING, OCR_PENDING)
+- Progress tracking and statistics
+- Clear roadmap for format implementation
+- Support for 19 different file formats
+
+Test Categories:
+- SUPPORTED: Currently working formats (6 formats)
+- PENDING: Formats needing implementation (5 formats)
+- OCR_PENDING: Image formats needing OCR setup (8 formats)
+
+Usage:
+    # Run all tests with detailed output
+    python run_text_cleaning_tests.py
+    
+    # Run with pytest (alternative)
+    pytest test_text_cleaning.py -v
+
+Output:
+    The script provides detailed output for each format including:
+    - Validation results for each test case
+    - Text length and quality metrics
+    - Specific issues found (if any)
+    - Overall statistics and progress tracking
+    - Implementation roadmap for pending formats
+
+Example Output:
+    ==================== PDF TEXT ====================
+    ✅ PDF Text        PASSED (9/9) - 733 chars
+    
+    ==================== RTF ====================
+    ⏳ PENDING - RTF needs pandoc dependency
+       Needs: Install pandoc system dependency
+    
+    📊 STATISTICS:
+      ✅ Supported formats: 6
+      ⏳ Pending formats: 5
+      🔍 OCR pending formats: 8
+      📁 Total formats: 19
+"""
 
 import sys
 import os

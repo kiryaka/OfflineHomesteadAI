@@ -1,4 +1,46 @@
-"""Command line interface for the ELT pipeline."""
+"""
+Command line interface for the ETL pipeline.
+
+This module provides a comprehensive CLI for the ETL (Extract, Transform, Load) pipeline
+using Click. It supports individual pipeline steps as well as running the complete
+pipeline from raw documents to search-ready indexes.
+
+Key Features:
+- Individual pipeline steps (extract, chunk, embed, load)
+- Complete pipeline execution
+- Configurable parameters for each step
+- Support for multiple file formats
+- Integration with both Tantivy and LanceDB
+
+Pipeline Steps:
+1. Extract: Extract text from documents (PDF, DOCX, images)
+2. Chunk: Split text into manageable chunks
+3. Embed: Generate vector embeddings for chunks
+4. Load: Export to search systems (Tantivy, LanceDB)
+
+Usage:
+    # Run individual steps
+    python -m etl.src.cli extract --input raw/ --output processed/
+    python -m etl.src.cli chunk --input processed/ --output chunks/
+    python -m etl.src.cli embed --input chunks/ --output embeddings/
+    python -m etl.src.cli load --embeddings embeddings/ --output indexes/
+    
+    # Run complete pipeline
+    python -m etl.src.cli pipeline --input raw/ --output output/
+
+Example:
+    >>> # Extract text from documents
+    >>> python -m etl.src.cli extract -i documents/ -o processed/ -f pdf docx
+    
+    >>> # Chunk processed documents
+    >>> python -m etl.src.cli chunk -i processed/ -o chunks/ --chunk-size 1000
+    
+    >>> # Generate embeddings
+    >>> python -m etl.src.cli embed -i chunks/ -o embeddings/ --model all-MiniLM-L6-v2
+    
+    >>> # Load into search systems
+    >>> python -m etl.src.cli load -e embeddings/ -o indexes/
+"""
 
 import logging
 import click
@@ -26,7 +68,18 @@ def main():
 @click.option('--formats', '-f', multiple=True, default=['pdf', 'docx', 'jpg', 'png'], 
               help='File formats to process')
 def extract(input: str, output: str, formats: List[str]):
-    """Extract text from documents."""
+    """
+    Extract text from documents.
+    
+    This command processes raw documents and extracts text content using
+    format-specific extractors. It supports PDF, DOCX, and image formats
+    with OCR capabilities.
+    
+    Args:
+        input: Directory containing raw documents
+        output: Directory to save processed JSON files
+        formats: List of file formats to process (pdf, docx, jpg, png, etc.)
+    """
     input_dir = Path(input)
     output_dir = Path(output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -71,7 +124,19 @@ def extract(input: str, output: str, formats: List[str]):
 @click.option('--chunk-size', default=1000, help='Chunk size in characters')
 @click.option('--chunk-overlap', default=200, help='Chunk overlap in characters')
 def chunk(input: str, output: str, chunk_size: int, chunk_overlap: int):
-    """Chunk processed documents."""
+    """
+    Chunk processed documents.
+    
+    This command takes processed documents and splits them into smaller,
+    manageable chunks for vector search. It preserves semantic boundaries
+    and applies configurable overlap between chunks.
+    
+    Args:
+        input: Directory containing processed JSON documents
+        output: Directory to save chunked data
+        chunk_size: Maximum size of each chunk in characters
+        chunk_overlap: Overlap between chunks in characters
+    """
     input_dir = Path(input)
     output_dir = Path(output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -109,7 +174,18 @@ def chunk(input: str, output: str, chunk_size: int, chunk_overlap: int):
 @click.option('--output', '-o', required=True, help='Output directory for embeddings')
 @click.option('--model', default='text-embedding-3-small', help='Embedding model')
 def embed(input: str, output: str, model: str):
-    """Generate embeddings for chunks."""
+    """
+    Generate embeddings for chunks.
+    
+    This command takes text chunks and generates vector embeddings using
+    the specified model. It also adds token counts for each chunk to
+    track text length and processing costs.
+    
+    Args:
+        input: Directory containing chunked JSON data
+        output: Directory to save embeddings
+        model: Embedding model to use (e.g., 'text-embedding-3-small', 'all-MiniLM-L6-v2')
+    """
     input_dir = Path(input)
     output_dir = Path(output)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -146,7 +222,17 @@ def embed(input: str, output: str, model: str):
 @click.option('--embeddings', '-e', required=True, help='Input directory with embeddings')
 @click.option('--output', '-o', required=True, help='Output directory for search indexes')
 def load(embeddings: str, output: str):
-    """Load data into search systems."""
+    """
+    Load data into search systems.
+    
+    This command takes processed chunks with embeddings and exports them
+    to both Tantivy (full-text search) and LanceDB (vector search) formats.
+    This enables both keyword-based and semantic search capabilities.
+    
+    Args:
+        embeddings: Directory containing embeddings JSON data
+        output: Directory to save search indexes
+    """
     embeddings_dir = Path(embeddings)
     output_dir = Path(output)
     
@@ -178,7 +264,26 @@ def load(embeddings: str, output: str):
 @click.option('--chunk-overlap', default=200, help='Chunk overlap in characters')
 @click.option('--model', default='text-embedding-3-small', help='Embedding model')
 def pipeline(input: str, output: str, chunk_size: int, chunk_overlap: int, model: str):
-    """Run the complete ELT pipeline."""
+    """
+    Run the complete ETL pipeline.
+    
+    This command executes the entire ETL pipeline from raw documents to
+    search-ready indexes. It combines all individual steps (extract, chunk,
+    embed, load) into a single workflow for convenience.
+    
+    Pipeline Steps:
+    1. Extract text from documents
+    2. Chunk text into manageable pieces
+    3. Generate vector embeddings
+    4. Export to search systems (Tantivy, LanceDB)
+    
+    Args:
+        input: Directory containing raw documents
+        output: Directory to save all pipeline outputs
+        chunk_size: Maximum size of each chunk in characters
+        chunk_overlap: Overlap between chunks in characters
+        model: Embedding model to use
+    """
     logger.info("Starting complete ELT pipeline")
     
     # Step 1: Extract

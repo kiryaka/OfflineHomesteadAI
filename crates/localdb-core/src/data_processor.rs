@@ -21,8 +21,11 @@ pub struct DataProcessor {
 }
 
 impl DataProcessor {
+    /// Create a new processor with default chunking config.
     pub fn new() -> Self { Self::default() }
 
+    /// Process a directory recursively, collecting `.txt` files and returning
+    /// `DocumentChunk`s. Logs progress. Returns an empty list if no files found.
     pub fn process_directory(&self, data_dir: &Path) -> Result<Vec<DocumentChunk>> {
         let files = self.list_txt_files(data_dir);
         if files.is_empty() {
@@ -59,6 +62,7 @@ impl DataProcessor {
         Ok(all_chunks)
     }
 
+    /// Read a text file, attempting UTF-8 first and falling back to raw bytes.
     fn read_file_content(&self, file_path: &Path) -> Result<String> {
         match fs::read_to_string(file_path) {
             Ok(content) => Ok(content),
@@ -66,14 +70,18 @@ impl DataProcessor {
         }
     }
 
+    /// Derive a document id (file stem) from a path.
     fn extract_doc_id(&self, file_path: &Path) -> String { file_path.file_stem().unwrap().to_string_lossy().to_string() }
 
+    /// Build a simple facet from the directory path relative to the root.
     fn get_facet_from_path(&self, file_path: &Path, data_dir: &Path) -> String {
         let relative_path = file_path.strip_prefix(data_dir).unwrap_or(file_path);
         if let Some(parent) = relative_path.parent() { if let Some(facet) = parent.to_str() { return facet.to_string(); } }
         "misc".to_string()
     }
 
+    /// Split content into paragraph chunks, then add overlapped sub-chunks for
+    /// paragraphs exceeding the token budget.
     fn chunk_content(&self, content: &str, doc_id: &str, file_path: &Path, category: &str) -> Result<Vec<DocumentChunk>> {
         let paragraphs: Vec<&str> = content.split("\n\n").collect();
         let mut document_chunks = Vec::new();
@@ -95,8 +103,10 @@ impl DataProcessor {
         Ok(document_chunks)
     }
 
+    /// Rough token count: word count divided by a constant.
     fn count_tokens(&self, text: &str) -> usize { let word_count = text.split_whitespace().count(); (word_count as f32 / 0.75) as usize }
 
+    /// Break a long paragraph into overlapping word windows.
     fn split_paragraph_with_overlap(&self, paragraph: &str) -> Vec<String> {
         let words: Vec<&str> = paragraph.split_whitespace().collect();
         let words_per_chunk = 300; let overlap_words = (words_per_chunk as f32 * self.chunking_config.overlap_percent) as usize;
@@ -108,8 +118,13 @@ impl DataProcessor {
             start = end - overlap_words;
         }
         chunks
+//! Pragmatic paragraph-based text chunker for `.txt` sources.
+//!
+//! Splits input files by blank lines, then further splits long paragraphs with
+//! overlap. Token count is approximated by word count / 0.75.
     }
 
+    /// Find all `.txt` files recursively under `root`.
     fn list_txt_files(&self, root: &Path) -> Vec<PathBuf> {
         let mut txt_files = Vec::new();
         for entry in walkdir::WalkDir::new(root).into_iter().filter_map(|e| e.ok()).filter(|e| e.file_type().is_file()) {
@@ -118,4 +133,3 @@ impl DataProcessor {
         txt_files.sort(); txt_files
     }
 }
-

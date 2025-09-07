@@ -23,3 +23,7 @@ pub fn masked_mean_l2(hidden: &Tensor, attention_mask: &Tensor) -> Result<Tensor
     assert_eq!(mean.dims(), &[batch, hidden_dim]);
     Ok(mean)
 }
+//! Pooling utilities for embedding models.
+//!
+//! `masked_mean_l2` computes a mean over the time dimension using the attention
+//! mask, then L2-normalizes per vector.

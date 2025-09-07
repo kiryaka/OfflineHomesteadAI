@@ -1,4 +1,52 @@
-"""Configuration management for ETL pipeline."""
+"""
+Configuration management for ETL pipeline.
+
+This module provides a centralized configuration system that supports multiple environments
+(dev, prod, test) and allows for environment variable overrides. It loads YAML configuration
+files and provides easy access to configuration values through dot-notation keys.
+
+Key Features:
+- Environment-specific configuration files (dev.yaml, prod.yaml, test.yaml)
+- Environment variable overrides for sensitive or dynamic values
+- Dot-notation key access (e.g., 'data.raw_dir')
+- Type-safe property accessors for common configuration values
+- Automatic path resolution for directory configurations
+
+Configuration Structure:
+    data:
+        raw_dir: "path/to/raw/files"
+        txt_dir: "path/to/processed/text"
+    pdf:
+        extractor: "pymupdf"  # or "pdfplumber", "pypdf2", "unstructured"
+        min_text_length: 50
+        max_line_length: 1000
+    text_cleaning:
+        remove_empty_lines: true
+        remove_whitespace_only: true
+        min_line_length: 10
+        preserve_paragraphs: true
+        normalize_whitespace: true
+    logging:
+        level: "INFO"
+
+Environment Variables:
+    ETL_ENV: Environment name (dev, prod, test)
+    ETL_RAW_DIR: Override raw directory path
+    ETL_TXT_DIR: Override text directory path
+
+Example:
+    >>> from etl.config.settings import Config
+    >>> 
+    >>> # Load development configuration
+    >>> config = Config()
+    >>> 
+    >>> # Access configuration values
+    >>> raw_dir = config.raw_dir
+    >>> pdf_extractor = config.pdf_extractor
+    >>> 
+    >>> # Use dot notation for nested values
+    >>> min_length = config.get('pdf.min_text_length', 50)
+"""
 
 import os
 from pathlib import Path
@@ -45,23 +93,35 @@ class Config:
             config["data"]["txt_dir"] = os.getenv("ETL_TXT_DIR")
     
     def get(self, key: str, default: Any = None) -> Any:
-        """Get configuration value by dot-separated key.
+        """
+        Get configuration value by dot-separated key.
+        
+        This method allows accessing nested configuration values using dot notation.
+        For example, 'data.raw_dir' will access config['data']['raw_dir'].
         
         Args:
-            key: Dot-separated key (e.g., 'data.raw_dir')
-            default: Default value if key not found
+            key: Dot-separated key path (e.g., 'data.raw_dir', 'pdf.extractor')
+            default: Default value to return if key is not found
             
         Returns:
-            Configuration value
+            Configuration value or default if key not found
+            
+        Example:
+            >>> config.get('data.raw_dir', '/default/path')
+            '/path/to/raw/files'
+            >>> config.get('nonexistent.key', 'default')
+            'default'
         """
         keys = key.split('.')
         value = self.config
         
         try:
+            # Navigate through nested dictionary structure
             for k in keys:
                 value = value[k]
             return value
         except (KeyError, TypeError):
+            # Return default if any key in the path doesn't exist
             return default
     
     @property

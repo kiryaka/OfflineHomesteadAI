@@ -1,12 +1,50 @@
 #!/usr/bin/env python3
-"""ETL Load Script - Convert all supported files to cleaned text files.
+"""
+ETL Load Script - Convert all supported files to cleaned text files.
 
-This script processes files of all supported types from a hierarchical directory structure,
-extracts text content using unstructured, cleans it, and saves as text files while preserving
-the directory structure.
+This script is the main entry point for the ETL (Extract, Transform, Load) pipeline.
+It processes files of all supported types from a hierarchical directory structure,
+extracts text content using the FileProcessor, cleans it with universal text cleaning,
+and saves as text files while preserving the directory structure.
+
+Key Features:
+- Processes multiple file formats (PDF, DOCX, HTML, Markdown, TXT, etc.)
+- Preserves directory structure in output
+- Universal text cleaning with format-specific optimizations
+- Progress tracking with tqdm
+- Comprehensive logging and error handling
+- Dry-run mode for testing
+- Environment-specific configuration
+
+Supported File Formats:
+- PDF (text): PyMuPDF, pdfplumber, PyPDF2, unstructured
+- DOCX/DOC: unstructured
+- HTML/HTM: unstructured
+- Markdown: unstructured
+- TXT: unstructured
+- RTF: unstructured (requires pandoc)
+- EPUB: unstructured (requires pandoc)
+- MSG/EML: unstructured email partitioner
+- Images: unstructured OCR (requires tesseract)
 
 Usage:
-    python load.py [--env dev|prod] [--dry-run]
+    python load.py [--env dev|prod|test] [--dry-run] [--verbose]
+
+Examples:
+    # Process files in development environment
+    python load.py --env dev
+    
+    # Test what would be processed without writing files
+    python load.py --env dev --dry-run
+    
+    # Process with verbose logging
+    python load.py --env prod --verbose
+
+Configuration:
+    The script uses environment-specific configuration files:
+    - etl/config/dev.yaml (development)
+    - etl/config/prod.yaml (production)
+    - etl/config/test.yaml (testing)
 """
 
 import argparse
@@ -111,7 +149,27 @@ def process_file(file_path: Path, output_path: Path, processor: FileProcessor,
 
 
 def main():
-    """Main function."""
+    """
+    Main function that orchestrates the ETL pipeline.
+    
+    This function handles command-line arguments, loads configuration, sets up logging,
+    finds supported files, processes them through the FileProcessor, and provides
+    comprehensive reporting on the results.
+    
+    The pipeline follows these steps:
+    1. Parse command-line arguments
+    2. Load environment-specific configuration
+    3. Setup logging with appropriate level
+    4. Validate input directory exists
+    5. Initialize FileProcessor with configuration
+    6. Recursively find all supported files
+    7. Process each file (extract, clean, save)
+    8. Generate summary report
+    
+    Returns:
+        None: Exits with appropriate status code on error
+    """
+    # Parse command-line arguments
     parser = argparse.ArgumentParser(description="Unified ETL Load Script - Convert all files to text")
     parser.add_argument("--env", choices=["dev", "prod", "test"], default="dev",
                        help="Environment (dev/prod/test)")
@@ -122,18 +180,20 @@ def main():
     
     args = parser.parse_args()
     
-    # Set environment variable
+    # Set environment variable for configuration loading
     import os
     os.environ["ETL_ENV"] = args.env
     
-    # Load configuration
+    # Load environment-specific configuration
+    # This will load the appropriate YAML file based on the environment
     try:
         config = Config()
     except FileNotFoundError as e:
         print(f"❌ Configuration error: {e}")
         sys.exit(1)
     
-    # Setup logging
+    # Setup logging with appropriate level
+    # Verbose mode enables DEBUG level for detailed troubleshooting
     if args.verbose:
         config.config["logging"]["level"] = "DEBUG"
     setup_logging(config)
@@ -141,22 +201,23 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f"Starting ETL Load process (env={args.env}, dry_run={args.dry_run})")
     
-    # Get directories
+    # Get input and output directories from configuration
     raw_dir = config.raw_dir
     txt_dir = config.txt_dir
     
     logger.info(f"Raw directory: {raw_dir}")
     logger.info(f"Text directory: {txt_dir}")
     
-    # Check if raw directory exists
+    # Validate that input directory exists
     if not raw_dir.exists():
         logger.error(f"Raw directory does not exist: {raw_dir}")
         sys.exit(1)
     
-    # Initialize processor
+    # Initialize the file processor with configuration
+    # This sets up all the extraction and cleaning parameters
     processor = FileProcessor(config)
     
-    # Find all supported files
+    # Recursively find all supported files in the input directory
     logger.info("Scanning for supported files...")
     supported_files = find_supported_files(raw_dir, processor)
     
@@ -164,7 +225,8 @@ def main():
         logger.warning("No supported files found in raw directory")
         return
     
-    # Show file type breakdown
+    # Analyze and report file type distribution
+    # This helps understand what types of files are being processed
     file_types = {}
     for file_path in supported_files:
         ext = file_path.suffix.lower()
@@ -174,17 +236,18 @@ def main():
     for ext, count in sorted(file_types.items()):
         logger.info(f"  {ext}: {count} files")
     
-    # Process files
+    # Process each file through the pipeline
     success_count = 0
     error_count = 0
     
     logger.info("Processing files...")
     
+    # Use tqdm for progress tracking during file processing
     for file_path in tqdm(supported_files, desc="Processing files"):
-        # Get output path
+        # Calculate output path preserving directory structure
         output_path = get_output_path(file_path, raw_dir, txt_dir)
         
-        # Process file
+        # Process the file (extract text, clean, and optionally save)
         success, message = process_file(file_path, output_path, processor, args.dry_run)
         
         if success:
@@ -194,7 +257,7 @@ def main():
             error_count += 1
             logger.warning(f"❌ {file_path.name}: {message}")
     
-    # Summary
+    # Generate comprehensive summary report
     logger.info("=" * 50)
     logger.info(f"Processing complete!")
     logger.info(f"✅ Successfully processed: {success_count}")

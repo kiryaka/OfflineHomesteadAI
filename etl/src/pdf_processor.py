@@ -1,4 +1,40 @@
-"""File processing utilities for text extraction and cleaning from all supported formats."""
+"""
+File processing utilities for text extraction and cleaning from all supported formats.
+
+This module provides a comprehensive file processing system that can extract and clean text
+from multiple document formats including PDF, DOCX, HTML, Markdown, and more. It uses a
+universal cleaning approach with format-specific optimizations.
+
+Key Features:
+- Universal text cleaning with format-aware optimizations
+- Support for multiple PDF extraction libraries (PyMuPDF, pdfplumber, PyPDF2, unstructured)
+- Unicode corruption detection and repair
+- Hyphenation fixing across line breaks
+- Format-specific artifact removal
+- Configurable cleaning parameters
+
+Supported Formats:
+- PDF (text): PyMuPDF, pdfplumber, PyPDF2, unstructured
+- DOCX/DOC: unstructured
+- HTML/HTM: unstructured  
+- Markdown: unstructured
+- TXT: unstructured
+- RTF: unstructured (requires pandoc)
+- EPUB: unstructured (requires pandoc)
+- MSG/EML: unstructured email partitioner
+- Images: unstructured OCR (requires tesseract)
+
+Example:
+    >>> from etl.src.pdf_processor import FileProcessor
+    >>> from etl.config.settings import Config
+    >>> 
+    >>> config = Config('etl/config/dev.yaml')
+    >>> processor = FileProcessor(config)
+    >>> 
+    >>> # Process any supported file
+    >>> cleaned_text = processor.process_file(Path('document.pdf'))
+    >>> print(f"Extracted {len(cleaned_text)} characters")
+"""
 
 import re
 import logging
@@ -327,28 +363,50 @@ class FileProcessor:
             return '\n'.join(cleaned_lines)
     
     def _needs_aggressive_cleaning(self, file_format: str, text: str) -> bool:
-        """Determine if text needs aggressive cleaning based on format and content."""
+        """
+        Determine if text needs aggressive cleaning based on format and content.
+        
+        This method analyzes the text to decide whether to apply aggressive cleaning
+        (like removing non-ASCII characters). It's used to handle corrupted text
+        that often comes from PDF extraction libraries.
+        
+        Args:
+            file_format: The file format (e.g., 'pdf', 'html', 'txt')
+            text: The raw extracted text to analyze
+            
+        Returns:
+            bool: True if aggressive cleaning should be applied
+            
+        Note:
+            Aggressive cleaning removes non-ASCII characters, which is useful for
+            corrupted text but may remove legitimate unicode content in other languages.
+        """
         # Always use aggressive cleaning for PDFs (they often have unicode corruption)
+        # PDF extraction libraries frequently produce corrupted unicode characters
         if file_format == 'pdf':
             return True
         
-        # Check for unicode corruption patterns in any format
+        # Check for specific unicode corruption patterns that indicate encoding issues
+        # These patterns are common artifacts from PDF extraction libraries
         unicode_corruption_patterns = [
-            'â\x80\x99',  # Common unicode corruption
+            'â\x80\x99',  # Common unicode corruption (smart apostrophe)
             'â\x80\x9c',  # Left double quote corruption
             'â\x80\x9d',  # Right double quote corruption
             'â\x80\x93',  # En dash corruption
             'â\x80\x94',  # Em dash corruption
         ]
         
+        # If any corruption pattern is found, apply aggressive cleaning
         for pattern in unicode_corruption_patterns:
             if pattern in text:
                 return True
         
         # Check for high ratio of non-ASCII characters (potential corruption)
-        if len(text) > 100:  # Only check if text is substantial
+        # This helps detect files with widespread encoding issues
+        if len(text) > 100:  # Only check if text is substantial enough
             non_ascii_count = sum(1 for c in text if ord(c) > 127)
-            if non_ascii_count / len(text) > 0.1:  # More than 10% non-ASCII
+            # If more than 10% of characters are non-ASCII, likely corrupted
+            if non_ascii_count / len(text) > 0.1:
                 return True
         
         return False

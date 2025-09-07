@@ -39,6 +39,7 @@ impl BgeM3Embedder {
         Ok(Self { model, tokenizer, device, dtype })
     }
 
+    /// Embed a single string (debug / one-off calls). Prefer `embed_batch`.
     #[allow(dead_code)]
     fn embed_one(&self, text: &str) -> Result<Vec<f32>> {
         let start = Instant::now();
@@ -56,8 +57,11 @@ impl BgeM3Embedder {
 }
 
 impl CoreEmbedder for BgeM3Embedder {
+    /// Embedding dimension (D)
     fn dim(&self) -> usize { 1024 }
+    /// Maximum sequence length accepted by the model tokenizer
     fn max_len(&self) -> usize { 256 }
+    /// Compute embeddings for a batch of texts on the configured device.
     fn embed_batch(&self, texts: &[String]) -> Result<Vec<Vec<f32>>> {
         use crate::tokenize::tokenize_batch_on_device;
         let max_len = self.max_len();
@@ -99,6 +103,14 @@ impl CoreEmbedder for FakeEmbedder {
 fn resolve_model_dir() -> Result<PathBuf> {
     if let Ok(dir) = std::env::var("APP_MODEL_DIR") { let p = PathBuf::from(&dir); if p.exists() { println!("📦 Using APP_MODEL_DIR: {}", p.display()); return Ok(p); } }
     if let Ok(dir) = std::env::var("MODEL_DIR") { let p = PathBuf::from(&dir); if p.exists() { println!("📦 Using MODEL_DIR: {}", p.display()); return Ok(p); } }
+//! localdb-embed
+//!
+//! Local embedding providers backed by Candle/safetensors, plus a fake
+//! deterministic embedder for tests and development.
+//!
+//! - `BgeM3Embedder` loads XLM‑R/BGE‑M3 from `model.safetensors`
+//! - `FakeEmbedder` is enabled by `APP_USE_FAKE_EMBEDDINGS=1`
+//! - `get_default_embedder()` picks fake vs real at runtime
     let root = Path::new("../models/bge-m3"); if root.exists() { println!("📦 Using model dir: {}", root.display()); return Ok(root.to_path_buf()); }
     let legacy = Path::new("models/bge-m3"); if legacy.exists() { println!("📦 Using legacy model dir: {}", legacy.display()); return Ok(legacy.to_path_buf()); }
     Err(anyhow!("Could not locate BGE-M3 model directory"))

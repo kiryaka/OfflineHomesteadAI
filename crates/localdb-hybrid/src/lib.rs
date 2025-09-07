@@ -45,3 +45,11 @@ impl<TI, VI> SearchEngine for HybridSearchEngine<TI, VI> where TI: TextIndexer, 
     fn index(&self, chunks: &[DocumentChunk]) -> Result<()> { Self::index(self, chunks) }
     fn query(&self, query: &str, k: usize) -> Result<Vec<SearchHit>> { Self::query(self, query, k) }
 }
+//! localdb-hybrid
+//!
+//! Thin façade that composes a text indexer and a vector indexer behind one
+//! `SearchEngine` trait. The engine indexes by embedding chunks once and writing
+//! to both backends, and queries by embedding the query once then merging hits.
+//!
+//! The merge prefers higher scores for duplicate ids and labels each hit with
+//! `SourceKind` so downstream callers can understand origin.

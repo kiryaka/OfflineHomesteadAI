@@ -24,7 +24,8 @@ pub struct SearchResult {
 }
 
 impl TantivySearchEngine {
-	pub fn new(index_dir: std::path::PathBuf) -> Result<Self, anyhow::Error> {
+    /// Open a searcher over an existing index path.
+    pub fn new(index_dir: std::path::PathBuf) -> Result<Self, anyhow::Error> {
 		let index = Index::open_in_dir(&index_dir)?;
 		crate::tantivy_utils::register_tokenizer(&index);
 		let reader = index.reader()?; let searcher = reader.searcher();
@@ -36,6 +37,7 @@ impl TantivySearchEngine {
 		Ok(Self { index, searcher, id_field, text_field, category_text_field, path_field })
 	}
 
+    /// Run a BM25 search with AND/phrase boosting and return top `limit` results.
     pub fn search(&self, query_text: &str, limit: usize) -> Result<Vec<SearchResult>, anyhow::Error> {
         // OR query (default behavior)
         let parser_or = QueryParser::for_index(&self.index, vec![self.text_field]);
@@ -74,7 +76,8 @@ impl TantivySearchEngine {
 		Ok(results)
 	}
 
-	pub fn get_facet_counts(&self, query_text: &str) -> Result<Vec<(String, u64)>, anyhow::Error> {
+    /// Compute facet counts for the root facet under the given query.
+    pub fn get_facet_counts(&self, query_text: &str) -> Result<Vec<(String, u64)>, anyhow::Error> {
 		let query_parser = QueryParser::for_index(&self.index, vec![self.text_field]);
 		let query = query_parser.parse_query(query_text)?;
 		let mut facet_collector = tantivy::collector::FacetCollector::for_field("category");
@@ -102,6 +105,10 @@ impl TextIndexer for TantivySearchEngine {
             let id = doc.get_first(self.id_field).and_then(|v| v.as_str()).unwrap_or("").to_string();
             hits.push(SearchHit { id, score, source: SourceKind::Text });
         }
+//! BM25 search over the Tantivy index with boosted AND/phrase variants.
+//!
+//! Builds three subqueries (OR, AND-by-default, and phrase if applicable) and
+//! combines them with a Boolean SHOULD query using weights (OR×1, AND×2, PHRASE×4).
         Ok(hits)
     }
 }

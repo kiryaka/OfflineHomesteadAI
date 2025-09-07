@@ -20,7 +20,8 @@ pub struct TantivyIndexer {
 }
 
 impl TantivyIndexer {
-	pub fn new(index_dir: std::path::PathBuf) -> Result<Self, anyhow::Error> {
+    /// Create a new indexer in `index_dir`, destroying any existing index.
+    pub fn new(index_dir: std::path::PathBuf) -> Result<Self, anyhow::Error> {
 		let schema = build_schema();
 		if index_dir.exists() { std::fs::remove_dir_all(&index_dir)?; }
 		std::fs::create_dir_all(&index_dir)?;
@@ -34,7 +35,10 @@ impl TantivyIndexer {
 		Ok(Self { index, id_field, text_field, category_field, category_text_field, path_field })
 	}
 
-	pub fn index_files(&self, data_dir: &Path) -> Result<usize, anyhow::Error> {
+    /// Recursively index `.txt` files from `data_dir`.
+    ///
+    /// Returns the number of files added to the index.
+    pub fn index_files(&self, data_dir: &Path) -> Result<usize, anyhow::Error> {
 		let mut index_writer = self.index.writer(50_000_000)?;
 		let mut file_count = 0;
 		for entry in walkdir::WalkDir::new(data_dir).into_iter().filter_map(|e| e.ok()) {
@@ -95,6 +99,10 @@ impl TextIndexer for TantivyIndexer {
             let doc: TantivyDocument = searcher.doc(addr)?;
             let id = doc.get_first(self.id_field).and_then(|v| v.as_str()).unwrap_or("").to_string();
             hits.push(SearchHit { id, score, source: SourceKind::Text });
+//! Build/rebuild a Tantivy index from a directory of `.txt` files.
+//!
+//! The indexer deletes the target index path if it already exists, then creates
+//! a fresh index using the crate's schema and tokenizer setup.
         }
         Ok(hits)
     }

@@ -42,3 +42,7 @@ pub fn tokenize_on_device(tokenizer: &Tokenizer, text: &str, max_len: usize, dev
     // reshape already matches (1, max_len)
     Ok((ids, mask))
 }
+//! Tokenization helpers for XLM‑R/BGE‑M3.
+//!
+//! Provides batched tokenization on the target device/dtype. Returns input ids
+//! and attention masks with shape `[B, T]`.

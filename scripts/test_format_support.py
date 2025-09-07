@@ -1,6 +1,44 @@
 #!/usr/bin/env python3
 """
 Test script to validate ETL pipeline support for all file formats.
+
+This script tests the ETL pipeline's ability to process various file formats
+and provides a comprehensive report on format support status. It validates
+both format recognition and text extraction capabilities.
+
+Key Features:
+- Tests all supported file formats
+- Validates text extraction functionality
+- Provides detailed status reporting
+- Identifies unsupported or problematic formats
+
+Supported Formats Tested:
+- HTML, HTM: Web page formats
+- Markdown, TXT: Plain text formats
+- RTF: Rich text format
+- Images: JPG, JPEG, PNG, TIFF, TIF, BMP, GIF
+- Documents: DOCX, DOC
+- E-books: EPUB
+- Email: MSG, EML
+
+Usage:
+    python scripts/test_format_support.py
+
+Example Output:
+    🧪 Testing ETL Pipeline Format Support
+    ==================================================
+    
+    📄 Testing HTML format...
+       ✅ Successfully extracted 1234 characters
+    
+    📄 Testing RTF format...
+       ❌ Error extracting text: No pandoc was found
+    
+    📊 Test Results Summary
+    ==================================================
+    ✅ HTML
+    ❌ RTF
+    🎯 15/18 formats supported
 """
 
 import sys
@@ -14,7 +52,20 @@ from config.settings import Config
 from pdf_processor import FileProcessor
 
 def test_format_support():
-    """Test that all supported formats are properly handled."""
+    """
+    Test that all supported formats are properly handled.
+    
+    This function validates the ETL pipeline's ability to process various
+    file formats by testing both format recognition and text extraction.
+    It provides a comprehensive report on the status of each format.
+    
+    Returns:
+        bool: True if all formats are supported, False otherwise
+        
+    Note:
+        The test uses the test environment configuration and expects
+        test files to be present in the test_data/raw/formats directory.
+    """
     
     # Load test configuration
     os.environ["ETL_ENV"] = "test"

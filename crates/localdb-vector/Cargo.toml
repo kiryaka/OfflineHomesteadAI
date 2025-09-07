@@ -14,8 +14,10 @@ arrow-schema = { workspace = true }
 futures = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 localdb-core = { path = "../localdb-core" }
+localdb-embed = { path = "../localdb-embed" }
 tempfile = "3.0"
 walkdir = "2.5"
+chrono = "0.4"
+blake3 = "1"
 
 [dev-dependencies]
-localdb-embed = { path = "../localdb-embed" }

@@ -1,4 +1,66 @@
-"""Test suite for text cleaning and validation across all supported formats."""
+"""
+Test suite for text cleaning and validation across all supported formats.
+
+This module provides comprehensive testing for the ETL pipeline's text cleaning functionality.
+It validates that text extraction and cleaning produces high-quality, normalized text
+across all supported file formats.
+
+Key Features:
+- Universal text validation across all formats
+- Format-specific test cases with appropriate expectations
+- Comprehensive validation rules (unicode, hyphenation, whitespace, etc.)
+- Support for 19 different file formats (6 supported, 5 pending, 8 OCR pending)
+- Clear status reporting and progress tracking
+
+Validation Rules:
+- Unicode corruption detection and repair
+- Hyphenation fixing across line breaks
+- Whitespace normalization (spaces, newlines, tabs)
+- Bullet point and list formatting
+- Quote and dash normalization
+- Minimum text length requirements
+- Empty line ratio limits
+- Format-specific artifact removal
+
+Supported Formats (6):
+- PDF (text): Full validation suite
+- TXT: Full validation suite
+- Markdown: Full validation suite
+- HTML: Full validation suite
+- DOCX: Full validation suite
+- HTM: Full validation suite (treated as HTML)
+
+Pending Formats (5):
+- RTF: Needs pandoc dependency
+- EML: Email partitioner configuration issue
+- EPUB: Needs unstructured support
+- MSG: Needs unstructured support
+- DOC: Needs unstructured support
+
+OCR Pending Formats (8):
+- PDF (image): Requires OCR implementation
+- JPG, JPEG, PNG, TIFF, TIF, BMP, GIF: Need Tesseract setup
+
+Usage:
+    # Run all tests
+    pytest test_text_cleaning.py
+    
+    # Run specific format test
+    pytest test_text_cleaning.py::TestTextCleaning::test_pdf_cleaning
+    
+    # Run with verbose output
+    pytest test_text_cleaning.py -v
+
+Example:
+    >>> from etl.tests.test_text_cleaning import TextValidator
+    >>> 
+    >>> validator = TextValidator()
+    >>> text = "This is clean text without corruption."
+    >>> 
+    >>> # Validate text quality
+    >>> results = validator.validate_all(text, 'txt')
+    >>> print(f"Validation passed: {all(result[0] for result in results.values())}")
+"""
 
 import pytest
 import re
@@ -9,11 +71,30 @@ from config.settings import Config
 
 
 class TextValidator:
-    """Universal text validator for all formats."""
+    """
+    Universal text validator for all formats.
+    
+    This class provides comprehensive validation methods to ensure that text
+    extracted and cleaned by the ETL pipeline meets quality standards. It
+    checks for common issues like unicode corruption, hyphenation problems,
+    whitespace issues, and format-specific artifacts.
+    
+    The validator is designed to work with all supported file formats and
+    provides consistent quality standards across the entire pipeline.
+    """
     
     def __init__(self):
+        """
+        Initialize the text validator with corruption patterns.
+        
+        Sets up the validator with known unicode corruption patterns that
+        commonly occur during PDF extraction and other text processing
+        operations. These patterns are used to detect and flag corrupted text.
+        """
+        # Common unicode corruption patterns from PDF extraction libraries
+        # These patterns indicate encoding issues that need aggressive cleaning
         self.unicode_corruption_patterns = [
-            'â\x80\x99',  # Common unicode corruption
+            'â\x80\x99',  # Common unicode corruption (smart apostrophe)
             'â\x80\x9c',  # Left double quote corruption
             'â\x80\x9d',  # Right double quote corruption
             'â\x80\x93',  # En dash corruption
